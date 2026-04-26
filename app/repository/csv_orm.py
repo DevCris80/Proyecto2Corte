@@ -9,13 +9,7 @@ def guardar_csv(objeto: Type[BaseModel], ruta_archivo: str):
     datos = objeto.model_dump()
     campos = list(datos.keys())
 
-    with open(
-        file=ruta_archivo,
-        mode="a+",
-        newline="",
-        encoding="utf-8"
-    ) as file:
-
+    with open(file=ruta_archivo, mode="a+", newline="", encoding="utf-8") as file:
         writer = csv.DictWriter(file, fieldnames=campos)
 
         if not archivo_existe:
