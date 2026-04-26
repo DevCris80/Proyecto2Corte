@@ -10,26 +10,34 @@ router = APIRouter(prefix="/productos", tags=["productos"])
 
 @router.post("", response_model=ProductoRespuesta, status_code=201)
 def crear_producto(producto: ProductoCrear):
+    proveedores = list(listar_csv(ProveedorRespuesta, RUTA_ARCHIVO_PROVEEDOR))
+    if not any(p.id == producto.id_proveedor and p.estado_activo for p in proveedores):
+        raise HTTPException(status_code=404, detail="Proveedor no encontrado o inactivo")
+
+    productos_existentes = list(listar_csv(ProductoRespuesta, RUTA_ARCHIVO_PRODUCTOS))
+    nombre_nuevo_normalizado = producto.nombre.strip().lower()
+
+    for p in productos_existentes:
+        if p.estado_activo and p.nombre.strip().lower() == nombre_nuevo_normalizado:
+            raise HTTPException(
+                status_code=409, 
+                detail=f"Ya existe un producto activo registrado como '{producto.nombre}'."
+            )
+
+    nuevo_id = str(uuid.uuid4())[:8]
+    diccionario_producto = producto.model_dump()
+    diccionario_producto["id"] = nuevo_id
+    diccionario_producto["estado_activo"] = True
+    producto_nuevo = ProductoRespuesta(**diccionario_producto)
+
     try:
-        proveedores = list(listar_csv(ProveedorRespuesta, RUTA_ARCHIVO_PROVEEDOR))
-        if not any(p.id == producto.id_proveedor and p.estado_activo for p in proveedores):
-            raise HTTPException(status_code=404, detail="Proveedor no encontrado o inactivo")
-
-        nuevo_id = str(uuid.uuid4())[:8]
-
-        diccionario_producto = producto.model_dump()
-        diccionario_producto["id"] = nuevo_id
-        diccionario_producto["estado_activo"] = True
-
-        producto_nuevo = ProductoRespuesta(**diccionario_producto)
-
         guardar_csv(producto_nuevo, RUTA_ARCHIVO_PRODUCTOS)
-
-        return producto_nuevo
     except IOError:
         raise HTTPException(status_code=500, detail="Error de escritura en el archivo CSV")
     except Exception as error:
-        raise HTTPException(status_code=500, detail=f"Error en el proceso: {str(error)}")
+        raise HTTPException(status_code=500, detail=f"Error inesperado de I/O: {str(error)}")
+
+    return producto_nuevo
 
 
 @router.get("", response_model=list[ProductoRespuesta], status_code=200)
@@ -59,17 +67,19 @@ def buscar_productos(nombre: str = Query(..., description="Nombre del producto a
     except Exception as error:
         raise HTTPException(status_code=500, detail=f"Error en el proceso: {str(error)}")
 
-@router.delete("/{id}", status_code=204)
+@router.delete("/{id}", status_code=200) 
 def eliminar_producto(id: str):
     try:
         exito = eliminar_csv(id_registro=id, ruta_archivo=RUTA_ARCHIVO_PRODUCTOS)
-        if not exito:
-            raise HTTPException(status_code=404, detail="ID no encontrado")
-        return {"mensaje": "Borrado exitoso"}
     except IOError:
         raise HTTPException(status_code=500, detail="Error de escritura en el archivo CSV")
     except Exception as error:
-        raise HTTPException(status_code=500, detail=f"Error en el proceso: {str(error)}")
+        raise HTTPException(status_code=500, detail=f"Error inesperado de I/O: {str(error)}")
+
+    if not exito:
+        raise HTTPException(status_code=404, detail="ID no encontrado")
+        
+    return {"mensaje": "Borrado exitoso"}
 
 @router.patch("/{id}", response_model=ProductoRespuesta, status_code=200)
 def actualizar_producto(id: str, producto: ProductoActualizar):
