@@ -10,7 +10,7 @@ class ProveedorBase(BaseModel):
     nivel_servicio_objetivo: float = Field(default=0.95, ge=0.8, le=0.99)
 
 class ProveedorCrear(ProveedorBase):
-    id: str
+    pass
 
 class ProveedorActualizar(BaseModel):
     nombre: Optional[str] = None

@@ -16,8 +16,7 @@ class ProductoBase(BaseModel):
 
 
 class ProductoCrear(ProductoBase):
-    id: str
-
+    pass
 
 class ProductoActualizar(BaseModel):
     nombre: Optional[str] = None
