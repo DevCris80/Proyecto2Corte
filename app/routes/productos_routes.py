@@ -2,6 +2,7 @@ from fastapi import APIRouter, HTTPException, Query
 import uuid
 
 from app.models.producto import ProductoCrear, ProductoRespuesta, ProductoActualizar
+from app.models.proveedor import ProveedorRespuesta
 from app.repository.csv_orm import eliminar_csv, guardar_csv, listar_csv, actualizar_csv
 from app.core.config import RUTA_ARCHIVO_PRODUCTOS, RUTA_ARCHIVO_PROVEEDOR
 
@@ -10,7 +11,7 @@ router = APIRouter(prefix="/productos", tags=["productos"])
 @router.post("", response_model=ProductoRespuesta, status_code=201)
 def crear_producto(producto: ProductoCrear):
     try:
-        proveedores = list(listar_csv(ProductoRespuesta, RUTA_ARCHIVO_PROVEEDOR))
+        proveedores = list(listar_csv(ProveedorRespuesta, RUTA_ARCHIVO_PROVEEDOR))
         if not any(p.id == producto.id_proveedor and p.estado_activo for p in proveedores):
             raise HTTPException(status_code=404, detail="Proveedor no encontrado o inactivo")
 
