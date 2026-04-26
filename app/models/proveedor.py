@@ -1,3 +1,5 @@
+from typing import Optional
+
 from pydantic import BaseModel, Field
 
 class ProveedorBase(BaseModel):
@@ -10,8 +12,18 @@ class ProveedorBase(BaseModel):
 class ProveedorCrear(ProveedorBase):
     id: str
 
+class ProveedorActualizar(BaseModel):
+    nombre: Optional[str] = None
+    costo_pedido_fijo: Optional[float] = Field(default=None, gt=0)
+    lead_time_promedio: Optional[float] = Field(default=None, gt=0)
+    desviacion_estandar_lead_time: Optional[float] = None
+    nivel_servicio_objetivo: Optional[float] = Field(
+        default=None,
+        ge=0.8,
+        le=0.99
+    )
+    estado_activo: Optional[bool] = None
+
 class ProveedorRespuesta(ProveedorBase):
-    id: int
+    id: str
     estado_activo: bool
-    
-    
