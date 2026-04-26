@@ -37,16 +37,16 @@ def listar_proveedores():
     except Exception as error:
         raise HTTPException(status_code=500, detail=f"Error en el proceso: {str(error)}")
 
-@router.patch("/{id}", response_model=ProveedorRespuesta, status_code=200)
+@router.patch("/{id}", status_code=200)
 def actualizar_proveedor(id_producto: str, proveedor: ProveedorActualizar):
-    datos_recibidos = id_producto.model_dump(exclude_unset=True)
+    datos_recibidos = proveedor.model_dump(exclude_unset=True)
     if not datos_recibidos:
         raise HTTPException(
             status_code=400, 
             detail="La peticion PATCH esta vacia. Debe enviar al menos un atributo valido."
         )
 
-    exito = actualizar_csv(objeto_id=id_producto, campo_id="id", nuevos_datos=id_producto, ruta_archivo=RUTA_ARCHIVO_PROVEEDOR)
+    exito = actualizar_csv(objeto_id=id_producto, campo_id="id", nuevos_datos=proveedor, ruta_archivo=RUTA_ARCHIVO_PROVEEDOR)
 
     if not exito:
         raise HTTPException(status_code=404, detail=f"Error: El producto con ID {id_producto} no fue encontrado.")
