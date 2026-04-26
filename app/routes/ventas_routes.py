@@ -10,7 +10,7 @@ from app.core.config import RUTA_ARCHIVO_PRODUCTOS, RUTA_ARCHIVO_VENTAS
 
 router = APIRouter(prefix="/ventas", tags=["ventas"])
 
-@router.post("/", response_model=VentaRespuesta, status_code=201)
+@router.post("", response_model=VentaRespuesta, status_code=201)
 def registrar_venta(venta_in: VentaCrear):
     productos = list(listar_csv(ProductoRespuesta, RUTA_ARCHIVO_PRODUCTOS))
     producto = next((p for p in productos if p.id == venta_in.id_producto and p.estado_activo), None)
