@@ -47,7 +47,7 @@ def registrar_venta(venta_in: VentaCrear):
 
     return nueva_venta
 
-@router.get("/", response_model=list[VentaRespuesta], status_code=200)
+@router.get("", response_model=list[VentaRespuesta], status_code=200)
 def listar_ventas():
     try:
         ventas = list(listar_csv(VentaRespuesta, RUTA_ARCHIVO_VENTAS))
