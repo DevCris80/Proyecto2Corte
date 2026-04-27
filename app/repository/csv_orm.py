@@ -55,7 +55,7 @@ def eliminar_csv(id_registro: str, ruta_archivo: str):
 
     return True
 
-def actualizar_csv(objeto_id: str, campo_id: str, nuevos_datos: Any, ruta_archivo: str):
+def actualizar_csv(objeto_id: str, campo_id: str, nuevos_datos: Type[BaseModel], ruta_archivo: str):
     if not os.path.isfile(ruta_archivo):
         return False
 
