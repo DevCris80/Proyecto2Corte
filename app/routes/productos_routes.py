@@ -81,7 +81,7 @@ def eliminar_producto(id: str):
         
     return {"mensaje": "Borrado exitoso"}
 
-@router.patch("/{id}", response_model=ProductoRespuesta, status_code=200)
+@router.patch("/{id}", status_code=200)
 def actualizar_producto(id: str, producto: ProductoActualizar):
     datos_recibidos = producto.model_dump(exclude_unset=True)
     if not datos_recibidos:
