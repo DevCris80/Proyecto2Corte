@@ -27,8 +27,8 @@ def calcular_optimizacion(
     if n_ventas < 5:
         stock_seguridad = math.ceil(0.20 * (demanda_diaria * proveedor.lead_time_promedio))
     else:
-        std_dev_demanda = statistics.stdev(ventas_cantidades)
-        termino_demanda = proveedor.lead_time_promedio * (std_dev_demanda ** 2)
+        desviacion_estandar_demanda = statistics.stdev(ventas_cantidades)
+        termino_demanda = proveedor.lead_time_promedio * (desviacion_estandar_demanda ** 2)
         termino_lt = (demanda_diaria ** 2) * (proveedor.desviacion_estandar_lead_time ** 2)
         stock_seguridad = math.ceil(z_score * math.sqrt(termino_demanda + termino_lt))
 
