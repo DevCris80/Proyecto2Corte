@@ -15,7 +15,7 @@ def calcular_optimizacion(
     
     ventas_cantidades = [v.cantidad for v in historico_ventas]
     n_ventas = len(ventas_cantidades)
-    
+
     demanda_diaria = sum(ventas_cantidades) / max(n_ventas, 1)
     demanda_anual = producto.demanda_anual_estimada
 
@@ -23,13 +23,13 @@ def calcular_optimizacion(
     cantidad_eoq = math.ceil(math.sqrt(numerador_eoq / producto.costo_almacenamiento_anual))
 
     z_score = 1.645
-    
+
     if n_ventas < 5:
         stock_seguridad = math.ceil(0.20 * (demanda_diaria * proveedor.lead_time_promedio))
     else:
         std_dev_demanda = statistics.stdev(ventas_cantidades)
         termino_demanda = proveedor.lead_time_promedio * (std_dev_demanda ** 2)
-        termino_lt = (demanda_diaria ** 2) * (proveedor.desviacion_std_lead_time ** 2)
+        termino_lt = (demanda_diaria ** 2) * (proveedor.desviacion_estandar_lead_time ** 2)
         stock_seguridad = math.ceil(z_score * math.sqrt(termino_demanda + termino_lt))
 
     punto_reorden = math.ceil((demanda_diaria * proveedor.lead_time_promedio) + stock_seguridad)
@@ -49,6 +49,6 @@ def calcular_optimizacion(
         cantidad_eoq=cantidad_eoq,
         punto_reorden=punto_reorden,
         stock_seguridad=stock_seguridad,
-        fecha_sugerida_pedido=str(date.today()),
+        fecha_sugerida_pedido=date.today(),
         estado_alerta=alerta
     )
