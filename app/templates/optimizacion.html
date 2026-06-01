@@ -3,6 +3,25 @@
 {% block content %}
 <h1>Optimización de Inventario</h1>
 
+<!-- Leyenda / Glosario -->
+<div class="card reveal" style="margin-bottom: 2rem; border-left: 4px solid var(--accent); background: var(--glass-bg);">
+    <h2 style="font-size: 1.1rem; margin-bottom: 1rem; color: var(--text-primary);">Glosario de Optimización</h2>
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1.5rem;">
+        <div>
+            <p class="meta" style="color: var(--accent); margin-bottom: 0.4rem;">EOQ</p>
+            <p style="font-size: 0.85rem; color: var(--text-secondary); line-height: 1.5;"><strong>Cantidad Económica de Pedido:</strong> Es el tamaño de orden ideal que minimiza la suma de los costos de mantener inventario y los costos de hacer un pedido.</p>
+        </div>
+        <div>
+            <p class="meta" style="color: var(--accent); margin-bottom: 0.4rem;">Punto de Reorden</p>
+            <p style="font-size: 0.85rem; color: var(--text-secondary); line-height: 1.5;">El nivel exacto de inventario en el cual se debe disparar un nuevo pedido para no quedarse sin stock durante el tiempo de entrega del proveedor.</p>
+        </div>
+        <div>
+            <p class="meta" style="color: var(--accent); margin-bottom: 0.4rem;">Stock de Seguridad</p>
+            <p style="font-size: 0.85rem; color: var(--text-secondary); line-height: 1.5;">Inventario adicional o "colchón" que se mantiene para protegerse contra fluctuaciones inesperadas en la demanda o demoras en la entrega.</p>
+        </div>
+    </div>
+</div>
+
 {% if alertas_criticas or alertas_normales %}
 
     {% if alertas_criticas %}

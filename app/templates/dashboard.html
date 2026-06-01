@@ -4,18 +4,24 @@
 <h1>Dashboard</h1>
 
 <div class="kpi-grid reveal">
-    <div class="kpi-card">
-        <h3>Proveedores</h3>
-        <p class="kpi-value">{{ total_proveedores }}</p>
-    </div>
-    <div class="kpi-card">
-        <h3>Productos</h3>
-        <p class="kpi-value">{{ total_productos }}</p>
-    </div>
-    <div class="kpi-card">
-        <h3>Ventas</h3>
-        <p class="kpi-value">{{ total_ventas }}</p>
-    </div>
+    <a href="/proveedores" style="text-decoration: none; display: block;">
+        <div class="kpi-card" style="cursor: pointer; transition: all 0.3s var(--ease-smooth);" onmouseover="this.style.borderColor='var(--accent)';" onmouseout="this.style.borderColor='var(--border)';">
+            <h3>Proveedores</h3>
+            <p class="kpi-value">{{ total_proveedores }}</p>
+        </div>
+    </a>
+    <a href="/productos" style="text-decoration: none; display: block;">
+        <div class="kpi-card" style="cursor: pointer; transition: all 0.3s var(--ease-smooth);" onmouseover="this.style.borderColor='var(--accent)';" onmouseout="this.style.borderColor='var(--border)';">
+            <h3>Productos</h3>
+            <p class="kpi-value">{{ total_productos }}</p>
+        </div>
+    </a>
+    <a href="/ventas" style="text-decoration: none; display: block;">    
+        <div class="kpi-card" style="cursor: pointer; transition: all 0.3s var(--ease-smooth);" onmouseover="this.style.borderColor='var(--accent)';" onmouseout="this.style.borderColor='var(--border)';">
+            <h3>Ventas</h3>
+            <p class="kpi-value">{{ total_ventas }}</p>
+        </div>
+    </a>
 </div>
 
 <div class="card reveal">
@@ -50,18 +56,20 @@
     {% if alertas %}
     <div class="alert-list">
         {% for alerta in alertas %}
-        <div class="card">
-            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:0.25rem;">
-                <strong>{{ alerta.nombre_producto }}</strong>
-                <span class="badge
-                    {% if alerta.estado_alerta == 'Urgente' %}badge-danger
-                    {% elif alerta.estado_alerta == 'Pedir ahora' %}badge-warning
-                    {% else %}badge-success{% endif %}">
-                    {{ alerta.estado_alerta }}
-                </span>
+        <a href="/optimizacion" style="text-decoration: none; display: block;">
+            <div class="card" style="cursor: pointer; border: 1px solid var(--glass-bg); transition: all 0.3s var(--ease-smooth);" onmouseover="this.style.borderColor='var(--accent)'; this.style.transform='translateY(-2px)';" onmouseout="this.style.borderColor='var(--glass-bg)'; this.style.transform='none';">
+                <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:0.25rem;">
+                    <strong>{{ alerta.nombre_producto }}</strong>
+                    <span class="badge
+                        {% if alerta.estado_alerta == 'Urgente' %}badge-danger
+                        {% elif alerta.estado_alerta == 'Pedir ahora' %}badge-warning
+                        {% else %}badge-success{% endif %}">
+                        {{ alerta.estado_alerta }}
+                    </span>
+                </div>
+                <p class="meta" style="color:var(--text-secondary);">EOQ {{ alerta.cantidad_eoq }} · Reorden {{ alerta.punto_reorden }} · {{ alerta.fecha_sugerida_pedido }}</p>
             </div>
-            <p class="meta">EOQ {{ alerta.cantidad_eoq }} · Reorden {{ alerta.punto_reorden }} · {{ alerta.fecha_sugerida_pedido }}</p>
-        </div>
+        </a>
         {% endfor %}
     </div>
     {% else %}
