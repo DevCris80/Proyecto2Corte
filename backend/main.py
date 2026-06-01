@@ -3,10 +3,12 @@ from urllib.parse import urlparse
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.staticfiles import StaticFiles
 from sqlmodel import SQLModel
 
 from app.core.database import engine
 from app.core.config import settings
+from app.routes.pages import router as pages_router
 from app.routes.proveedores_routes import router as proveedor_router
 from app.routes.productos_routes import router as productos_router
 from app.routes.ventas_routes import router as ventas_router
@@ -34,13 +36,10 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+app.include_router(pages_router)
+app.mount("/static", StaticFiles(directory="app/static"), name="static")
 app.include_router(proveedor_router)
 app.include_router(productos_router)
 app.include_router(ventas_router)
 app.include_router(optimizacion_router)
 app.include_router(dashboard_router)
-
-
-@app.get("/")
-async def raiz():
-    return {"Saludo": "Hola profe"}
