@@ -4,7 +4,7 @@
         <thead>
             <tr>
                 {% for header in headers %}
-                <th>{{ header }}</th>
+                <th class="sortable" data-col="{{ loop.index0 }}">{{ header }} <span class="sort-arrow"></span></th>
                 {% endfor %}
                 {% if actions %}
                 <th></th>

@@ -343,6 +343,28 @@ h2 {
   white-space: nowrap;
 }
 
+/* ── Sortable columns ── */
+.data-table th.sortable {
+  cursor: pointer;
+  user-select: none;
+}
+.data-table th.sortable:hover {
+  color: var(--accent);
+}
+.sort-arrow {
+  opacity: 0.2;
+  margin-left: 4px;
+  font-size: 8px;
+}
+th.sort-asc .sort-arrow::after {
+  content: "▲";
+  opacity: 1;
+}
+th.sort-desc .sort-arrow::after {
+  content: "▼";
+  opacity: 1;
+}
+
 /* ── Forms ── */
 .form-group {
   margin-bottom: 1.25rem;
