@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+{% import "macros/tables.html" as tables %}
+{% import "macros/forms.html" as forms %}
+{% import "macros/modals.html" as modals %}
+{% import "macros/pagination.html" as pager %}
+{% block title %}Ventas - SISPRO{% endblock %}
+{% block content %}
+<div class="page-header">
+    <h1>Ventas <span class="meta" style="margin-left:0.75rem;">{{ total }} registros</span></h1>
+    <button class="btn btn-primary" onclick="window.openModal('modal-crear')">+ Registrar</button>
+</div>
+
+<div class="kpi-grid reveal">
+    <div class="kpi-card">
+        <h3>Total Ventas</h3>
+        <p class="kpi-value">{{ total_ventas_valor }}</p>
+    </div>
+</div>
+
+{{ pager.pagination(page, total_pages, '/productos', q) }}
+
+<form method="GET" action="/ventas" class="search-bar">
+    <input type="text" name="q" value="{{ q }}" placeholder="Buscar producto…" class="search-input">
+    <button type="submit" class="btn btn-sm">Buscar</button>
+    {% if q %}<a href="/ventas" class="btn btn-sm btn-ghost">Limpiar</a>{% endif %}
+</form>
+
+<div class="reveal">
+{{ tables.table(ventas_headers, ventas_rows, actions=True, delete_url='ventas') }}
+</div>
+
+{{ pager.pagination(page, total_pages, '/ventas', q) }}
+
+{% set crear_form %}
+<form action="/ventas" method="POST">
+    {{ forms.select('Producto', 'id_producto', producto_options) }}
+    {{ forms.input('Cantidad', 'cantidad', type='number', required=True) }}
+    {{ forms.button('Registrar', class='btn-primary') }}
+</form>
+{% endset %}
+{{ modals.modal('modal-crear', 'Registrar Venta', crear_form) }}
+{% endblock %}

@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+{% import "macros/tables.html" as tables %}
+{% import "macros/forms.html" as forms %}
+{% import "macros/modals.html" as modals %}
+{% import "macros/pagination.html" as pager %}
+{% block title %}Productos - SISPRO{% endblock %}
+{% block content %}
+<div class="page-header">
+    <h1>Productos <span class="meta" style="margin-left:0.75rem;">{{ total }} registros</span></h1>
+    <button class="btn btn-primary" onclick="window.openModal('modal-crear')">+ Nuevo</button>
+</div>
+
+<form method="GET" action="/productos" class="search-bar">
+    <input type="text" name="q" value="{{ q }}" placeholder="Buscar por nombre…" class="search-input">
+    <button type="submit" class="btn btn-sm">Buscar</button>
+    {% if q %}<a href="/productos" class="btn btn-sm btn-ghost">Limpiar</a>{% endif %}
+</form>
+
+{{ pager.pagination(page, total_pages, '/productos', q) }}
+
+<div class="reveal">
+{{ tables.table(productos_headers, productos_rows, actions=True, delete_url='productos') }}
+</div>
+
+{{ pager.pagination(page, total_pages, '/productos', q) }}
+
+{% set crear_form %}
+<form action="/productos" method="POST" enctype="multipart/form-data">
+    {{ forms.input('Nombre', 'nombre', required=True) }}
+    {{ forms.select('Proveedor', 'id_proveedor', proveedor_options) }}
+    {{ forms.input('Stock Actual', 'stock_actual', type='number', required=True) }}
+    {{ forms.input('Costo Unitario', 'costo_unitario', type='number', step='0.01', required=True) }}
+    {{ forms.input('Costo Almacenamiento Anual', 'costo_almacenamiento_anual', type='number', step='0.01', required=True) }}
+    {{ forms.input('Demanda Anual Estimada', 'demanda_anual_estimada', type='number', step='0.01', required=True) }}
+    {{ forms.input('Imagen (opcional)', 'imagen', type='file') }}
+    {{ forms.button('Guardar', class='btn-primary') }}
+</form>
+{% endset %}
+{{ modals.modal('modal-crear', 'Nuevo Producto', crear_form) }}
+{% endblock %}

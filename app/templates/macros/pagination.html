@@ -1,0 +1,17 @@
+{% macro _pagination_url(base_url, page, q) %}{{ base_url }}?page={{ page }}{% if q %}&q={{ q }}{% endif %}{% endmacro %}
+
+{% macro pagination(page, total_pages, base_url, q='') %}
+{% if total_pages > 1 %}
+<div class="pagination">
+    {% if page > 1 %}
+    <a href="{{ _pagination_url(base_url, page - 1, q) }}" class="btn btn-sm">&larr; Anterior</a>
+    {% endif %}
+
+    <span class="pagination-info">{{ page }} / {{ total_pages }}</span>
+
+    {% if page < total_pages %}
+    <a href="{{ _pagination_url(base_url, page + 1, q) }}" class="btn btn-sm">Siguiente &rarr;</a>
+    {% endif %}
+</div>
+{% endif %}
+{% endmacro %}

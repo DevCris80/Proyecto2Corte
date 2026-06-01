@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+{% import "macros/forms.html" as forms %}
+{% block title %}Editar Venta - SISPRO{% endblock %}
+{% block content %}
+<div class="page-header">
+    <h1>Editar Venta</h1>
+    <a href="/ventas" class="btn btn-ghost">&larr; Volver</a>
+</div>
+
+<div class="card" style="max-width:560px; margin:0 auto;">
+    <form action="/ventas/{{ venta.id }}/editar" method="POST">
+        {{ forms.select('Producto', 'id_producto', producto_options, selected=venta.id_producto) }}
+        {{ forms.input('Cantidad', 'cantidad', type='number', value=venta.cantidad, required=True) }}
+        {{ forms.button('Guardar Cambios', class='btn-primary') }}
+    </form>
+</div>
+{% endblock %}
