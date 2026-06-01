@@ -2,9 +2,21 @@ import math
 import uuid
 from typing import Optional
 from sqlmodel import select, func
+from sqlalchemy import case
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.models.producto import Producto, ProductoCreate, ProductoUpdate
+
+
+async def contar_distribucion_stock(session: AsyncSession) -> dict:
+    query = select(
+        func.sum(case((Producto.stock_actual < 10, 1), else_=0)).label("bajo"),
+        func.sum(case((Producto.stock_actual.between(10, 50), 1), else_=0)).label("medio"),
+        func.sum(case((Producto.stock_actual > 50, 1), else_=0)).label("alto"),
+    ).where(Producto.estado_activo)
+    result = await session.execute(query)
+    row = result.one()
+    return {"bajo": int(row.bajo or 0), "medio": int(row.medio or 0), "alto": int(row.alto or 0)}
 
 
 async def listar(
