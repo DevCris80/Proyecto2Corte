@@ -58,6 +58,24 @@ document.addEventListener('DOMContentLoaded', function () {
   /* ── Sortable table columns (event delegation) ── */
 });
 
+/* ── Preload images for modals in the background ── */
+window.addEventListener('load', function () {
+  setTimeout(function () {
+    document.querySelectorAll('.clickable-row').forEach(function (row) {
+      var raw = row.getAttribute('data-detail');
+      if (raw) {
+        try {
+          var data = JSON.parse(raw);
+          if (data.imagen_url) {
+            var img = new Image();
+            img.src = data.imagen_url;
+          }
+        } catch (e) {}
+      }
+    });
+  }, 500); // 500ms delay to avoid blocking initial page render
+});
+
 /* ── Sidebar toggle ── */
 var sidebarToggle = document.getElementById('sidebarToggle');
 var sidebar = document.getElementById('sidebar');
