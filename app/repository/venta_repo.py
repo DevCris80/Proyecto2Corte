@@ -1,10 +1,25 @@
 import math
 import uuid
 from sqlmodel import select, func
+from sqlalchemy import extract
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.models.venta import Venta, VentaCreate
 from app.models.producto import Producto
+
+
+async def listar_ventas_por_mes(session: AsyncSession) -> list[dict]:
+    query = select(
+        extract("year", Venta.fecha_venta).label("year"),
+        extract("month", Venta.fecha_venta).label("month"),
+        func.sum(Venta.cantidad).label("cantidad"),
+    ).group_by("year", "month").order_by("year", "month")
+    result = await session.execute(query)
+    rows = result.all()
+    return [
+        {"mes": f"{int(r.year)}-{int(r.month):02d}", "cantidad": int(r.cantidad)}
+        for r in rows
+    ]
 
 
 async def listar(session: AsyncSession) -> list[Venta]:
