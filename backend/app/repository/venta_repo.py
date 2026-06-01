@@ -1,5 +1,6 @@
+import math
 import uuid
-from sqlmodel import select
+from sqlmodel import select, func
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.models.venta import Venta, VentaCreate
@@ -8,7 +9,29 @@ from app.models.producto import Producto
 
 async def listar(session: AsyncSession) -> list[Venta]:
     result = await session.execute(select(Venta))
-    return result.scalars().all() # type: ignore[return-value]
+    return result.scalars().all()
+
+
+async def contar(session: AsyncSession) -> int:
+    query = select(func.count()).select_from(Venta)
+    result = await session.execute(query)
+    return result.scalar() or 0
+
+
+async def listar_paginado(
+    session: AsyncSession, page: int = 1, per_page: int = 50
+) -> tuple[list[Venta], int, int, int]:
+    total = await contar(session)
+    total_pages = max(1, math.ceil(total / per_page))
+    query = (
+        select(Venta)
+        .order_by(Venta.fecha_venta.desc())
+        .offset((page - 1) * per_page)
+        .limit(per_page)
+    )
+    result = await session.execute(query)
+    items = list(result.scalars().all())
+    return items, total, page, total_pages
 
 
 async def obtener_por_id(session: AsyncSession, id: str) -> Venta | None:

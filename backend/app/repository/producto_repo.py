@@ -1,6 +1,7 @@
+import math
 import uuid
 from typing import Optional
-from sqlmodel import select
+from sqlmodel import select, func
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.models.producto import Producto, ProductoCreate, ProductoUpdate
@@ -8,7 +9,7 @@ from app.models.producto import Producto, ProductoCreate, ProductoUpdate
 
 async def listar(
     session: AsyncSession, estado: Optional[bool] = None
-) -> list[Producto]:
+):
     query = select(Producto)
     if estado is not None:
         query = query.where(Producto.estado_activo == estado)
@@ -16,8 +17,30 @@ async def listar(
     return result.scalars().all()
 
 
-async def listar_activos(session: AsyncSession) -> list[Producto]:
+async def listar_activos(session: AsyncSession):
     return await listar(session, estado=True)
+
+
+async def contar_activos(session: AsyncSession) -> int:
+    query = select(func.count()).select_from(Producto).where(Producto.estado_activo)
+    result = await session.execute(query)
+    return result.scalar() or 0
+
+
+async def listar_activos_paginado(
+    session: AsyncSession, page: int = 1, per_page: int = 50
+) -> tuple[list[Producto], int, int, int]:
+    total = await contar_activos(session)
+    total_pages = max(1, math.ceil(total / per_page))
+    query = (
+        select(Producto)
+        .where(Producto.estado_activo)
+        .offset((page - 1) * per_page)
+        .limit(per_page)
+    )
+    result = await session.execute(query)
+    items = list(result.scalars().all())
+    return items, total, page, total_pages
 
 
 async def obtener_por_id(session: AsyncSession, id: str) -> Producto | None:
@@ -27,11 +50,11 @@ async def obtener_por_id(session: AsyncSession, id: str) -> Producto | None:
 
 async def buscar_por_nombre(
     session: AsyncSession, nombre: str
-) -> list[Producto]:
+):
     result = await session.execute(
         select(Producto).where(
             Producto.nombre.ilike(f"%{nombre}%"),
-            Producto.estado_activo == True,
+            Producto.estado_activo,
         )
     )
     return result.scalars().all()

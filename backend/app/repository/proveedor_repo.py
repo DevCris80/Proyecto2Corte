@@ -1,15 +1,38 @@
+import math
 import uuid
-from sqlmodel import select
+from sqlmodel import select, func
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.models.proveedor import Proveedor, ProveedorCreate, ProveedorUpdate
 
 
-async def listar_activos(session: AsyncSession) -> list[Proveedor]:
+async def listar_activos(session: AsyncSession):
     result = await session.execute(
         select(Proveedor).where(Proveedor.estado_activo)
     )
     return result.scalars().all()
+
+
+async def contar_activos(session: AsyncSession) -> int:
+    query = select(func.count()).select_from(Proveedor).where(Proveedor.estado_activo)
+    result = await session.execute(query)
+    return result.scalar() or 0
+
+
+async def listar_activos_paginado(
+    session: AsyncSession, page: int = 1, per_page: int = 50
+) -> tuple[list[Proveedor], int, int, int]:
+    total = await contar_activos(session)
+    total_pages = max(1, math.ceil(total / per_page))
+    query = (
+        select(Proveedor)
+        .where(Proveedor.estado_activo)
+        .offset((page - 1) * per_page)
+        .limit(per_page)
+    )
+    result = await session.execute(query)
+    items = list(result.scalars().all())
+    return items, total, page, total_pages
 
 
 async def obtener_por_id(session: AsyncSession, id: str) -> Proveedor | None:
