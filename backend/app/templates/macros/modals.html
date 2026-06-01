@@ -1,0 +1,13 @@
+{% macro modal(id, title, form_content) %}
+<div id="{{ id }}" class="modal-overlay" data-modal="{{ id }}">
+    <div class="modal">
+        <div class="modal-header">
+            <h3>{{ title }}</h3>
+            <button class="modal-close" onclick="window.closeModal('{{ id }}')">&times;</button>
+        </div>
+        <div class="modal-body">
+            {{ form_content }}
+        </div>
+    </div>
+</div>
+{% endmacro %}

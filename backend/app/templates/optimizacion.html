@@ -1,0 +1,54 @@
+{% extends "base.html" %}
+{% block title %}Optimización - SISPRO{% endblock %}
+{% block content %}
+<h1>Optimización de Inventario</h1>
+
+{% if alertas_criticas or alertas_normales %}
+
+    {% if alertas_criticas %}
+    <div class="opt-section-title critical reveal">Alertas Críticas</div>
+    <div class="card-grid reveal">
+        {% for a in alertas_criticas %}
+        <div class="card">
+            <h3>{{ a.nombre_producto }}</h3>
+            <span class="badge
+                {% if a.estado_alerta == 'Urgente' %}badge-danger
+                {% elif a.estado_alerta == 'Pedir ahora' %}badge-warning
+                {% else %}badge-success{% endif %}">
+                {{ a.estado_alerta }}
+            </span>
+            <div style="margin-top:1rem;">
+                <p class="meta" style="margin-bottom:0.4rem;">EOQ: <strong style="color:var(--text-primary);">{{ a.cantidad_eoq }}</strong></p>
+                <p class="meta" style="margin-bottom:0.4rem;">Reorden: <strong style="color:var(--text-primary);">{{ a.punto_reorden }}</strong></p>
+                <p class="meta" style="margin-bottom:0.4rem;">Seguridad: <strong style="color:var(--text-primary);">{{ a.stock_seguridad }}</strong></p>
+                <p class="meta">Fecha: <strong style="color:var(--text-primary);">{{ a.fecha_sugerida_pedido }}</strong></p>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    {% if alertas_normales %}
+    <div class="opt-section-title normal reveal">Próximos Pedidos</div>
+    <div class="card-grid reveal">
+        {% for a in alertas_normales %}
+        <div class="card">
+            <h3>{{ a.nombre_producto }}</h3>
+            <span class="badge badge-success">{{ a.estado_alerta }}</span>
+            <div style="margin-top:1rem;">
+                <p class="meta" style="margin-bottom:0.4rem;">EOQ: <strong style="color:var(--text-primary);">{{ a.cantidad_eoq }}</strong></p>
+                <p class="meta" style="margin-bottom:0.4rem;">Reorden: <strong style="color:var(--text-primary);">{{ a.punto_reorden }}</strong></p>
+                <p class="meta" style="margin-bottom:0.4rem;">Seguridad: <strong style="color:var(--text-primary);">{{ a.stock_seguridad }}</strong></p>
+                <p class="meta">Fecha: <strong style="color:var(--text-primary);">{{ a.fecha_sugerida_pedido }}</strong></p>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+{% else %}
+<div class="card reveal">
+    <p style="color:var(--accent);font-family:'Plus Jakarta Sans',sans-serif;font-weight:800;text-transform:uppercase;">✅ Todos los productos están en nivel óptimo</p>
+</div>
+{% endif %}
+{% endblock %}

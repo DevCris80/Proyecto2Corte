@@ -1,0 +1,71 @@
+{% extends "base.html" %}
+{% block title %}Dashboard - SISPRO{% endblock %}
+{% block content %}
+<h1>Dashboard</h1>
+
+<div class="kpi-grid reveal">
+    <div class="kpi-card">
+        <h3>Proveedores</h3>
+        <p class="kpi-value">{{ total_proveedores }}</p>
+    </div>
+    <div class="kpi-card">
+        <h3>Productos</h3>
+        <p class="kpi-value">{{ total_productos }}</p>
+    </div>
+    <div class="kpi-card">
+        <h3>Ventas</h3>
+        <p class="kpi-value">{{ total_ventas }}</p>
+    </div>
+</div>
+
+<div class="card reveal">
+    <h2 style="margin-bottom:1.25rem;">Ventas por Mes</h2>
+    {% if ventas_por_mes %}
+    {% set max_cant = ventas_por_mes | map(attribute='cantidad') | max %}
+    <div class="chart-container">
+        {% for item in ventas_por_mes %}
+        <div class="chart-bar-wrapper">
+            <span class="chart-bar-value">{{ item.cantidad }}</span>
+            <div class="chart-bar" style="height: {{ (item.cantidad / max_cant * 100) if max_cant > 0 else 0 }}%;"></div>
+            <span class="chart-bar-label">{{ item.mes[5:7] }}/{{ item.mes[2:4] }}</span>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="chart-empty">Sin datos de ventas</div>
+    {% endif %}
+</div>
+
+<div class="card reveal">
+    <h2>Distribución de Stock</h2>
+    <ul>
+        <li>Stock bajo (&lt;10): <strong>{{ distribucion_stock.bajo }}</strong></li>
+        <li>Stock medio (10-50): <strong>{{ distribucion_stock.medio }}</strong></li>
+        <li>Stock alto (&gt;50): <strong>{{ distribucion_stock.alto }}</strong></li>
+    </ul>
+</div>
+
+<div class="card reveal">
+    <h2>Alertas de Pedido</h2>
+    {% if alertas %}
+    <div class="alert-list">
+        {% for alerta in alertas %}
+        <div class="card">
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:0.25rem;">
+                <strong>{{ alerta.nombre_producto }}</strong>
+                <span class="badge
+                    {% if alerta.estado_alerta == 'Urgente' %}badge-danger
+                    {% elif alerta.estado_alerta == 'Pedir ahora' %}badge-warning
+                    {% else %}badge-success{% endif %}">
+                    {{ alerta.estado_alerta }}
+                </span>
+            </div>
+            <p class="meta">EOQ {{ alerta.cantidad_eoq }} · Reorden {{ alerta.punto_reorden }} · {{ alerta.fecha_sugerida_pedido }}</p>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <p style="color:var(--text-secondary);">No hay alertas pendientes.</p>
+    {% endif %}
+</div>
+{% endblock %}

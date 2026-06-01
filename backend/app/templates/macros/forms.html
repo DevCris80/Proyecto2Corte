@@ -1,0 +1,21 @@
+{% macro input(label, name, type='text', value='', placeholder='', required=False, step='', extra='') %}
+<div class="form-group">
+    <label for="{{ name }}" class="meta">{{ label }}</label>
+    <input type="{{ type }}" id="{{ name }}" name="{{ name }}" value="{{ value }}" placeholder="{{ placeholder }}" {% if required %}required{% endif %} {% if step %}step="{{ step }}"{% endif %} {{ extra | safe }}>
+</div>
+{% endmacro %}
+
+{% macro select(label, name, options, selected='') %}
+<div class="form-group">
+    <label for="{{ name }}" class="meta">{{ label }}</label>
+    <select id="{{ name }}" name="{{ name }}">
+        {% for value, label_text in options %}
+        <option value="{{ value }}" {% if value == selected %}selected{% endif %}>{{ label_text }}</option>
+        {% endfor %}
+    </select>
+</div>
+{% endmacro %}
+
+{% macro button(text, type='submit', class='btn-primary') %}
+<button type="{{ type }}" class="btn {{ class }}">{{ text }}</button>
+{% endmacro %}
