@@ -7,7 +7,6 @@ from fastapi.staticfiles import StaticFiles
 from sqlmodel import SQLModel
 
 from app.core.database import engine
-from app.core.config import settings
 from app.routes.pages import router as pages_router
 from app.routes.proveedores_routes import router as proveedor_router
 from app.routes.productos_routes import router as productos_router
@@ -24,13 +23,11 @@ async def lifespan(app: FastAPI):
     await engine.dispose()
 
 
-frontend_host = urlparse(settings.frontend_url).netloc
 
 app = FastAPI(lifespan=lifespan)
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origin_regex=rf"https?://({frontend_host}|proyecto-dev-2026-1.*\.vercel\.app)",
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
