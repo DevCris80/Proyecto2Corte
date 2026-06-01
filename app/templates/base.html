@@ -38,6 +38,28 @@
             {% block content %}{% endblock %}
         </main>
     </div>
+    <div id="modal-detalle" class="modal-overlay" data-modal="modal-detalle">
+        <div class="modal modal-detail">
+            <div class="modal-header">
+                <h3 id="detalle-titulo"></h3>
+                <button class="modal-close" onclick="window.closeModal('modal-detalle')">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="detail-card">
+                    <div class="detail-image-col" id="detalle-imagen-col" style="display:none;">
+                        <img id="detalle-imagen" src="" alt="">
+                    </div>
+                    <div class="detail-fields-col" id="detalle-campos"></div>
+                </div>
+                <div class="detail-actions" id="detalle-acciones">
+                    <a id="detalle-btn-editar" class="btn btn-sm btn-ghost" href="">Editar</a>
+                    <form id="detalle-form-eliminar" method="POST" style="display:inline;" data-confirm="">
+                        <button type="submit" class="btn btn-sm btn-danger">Eliminar</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
     <script src="/static/js/main.js"></script>
     {% block scripts %}{% endblock %}
 </body>

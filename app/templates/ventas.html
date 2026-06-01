@@ -17,19 +17,19 @@
     </div>
 </div>
 
-{{ pager.pagination(page, total_pages, '/productos', q) }}
+{{ pager.pagination(page, total_pages, '/productos', busqueda_nombre) }}
 
 <form method="GET" action="/ventas" class="search-bar">
-    <input type="text" name="q" value="{{ q }}" placeholder="Buscar producto…" class="search-input">
+    <input type="text" name="busqueda_nombre" value="{{ busqueda_nombre }}" placeholder="Buscar producto…" class="search-input">
     <button type="submit" class="btn btn-sm">Buscar</button>
-    {% if q %}<a href="/ventas" class="btn btn-sm btn-ghost">Limpiar</a>{% endif %}
+    {% if busqueda_nombre %}<a href="/ventas" class="btn btn-sm btn-ghost">Limpiar</a>{% endif %}
 </form>
 
 <div class="reveal">
-{{ tables.table(ventas_headers, ventas_rows, actions=True, delete_url='ventas') }}
+{{ tables.table(ventas_headers, ventas_rows, actions=True, delete_url='ventas', detail=True, detail_type='venta') }}
 </div>
 
-{{ pager.pagination(page, total_pages, '/ventas', q) }}
+{{ pager.pagination(page, total_pages, '/ventas', busqueda_nombre) }}
 
 {% set crear_form %}
 <form action="/ventas" method="POST">

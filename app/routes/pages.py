@@ -1,3 +1,4 @@
+import json
 from fastapi import APIRouter, Depends, Form, Query, UploadFile, File, Request
 from fastapi.responses import RedirectResponse
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -36,11 +37,11 @@ async def dashboard(request: Request, session: AsyncSession = Depends(get_sessio
 async def productos(
     request: Request,
     page: int = Query(1, ge=1),
-    q: str = Query(""),
+    busqueda_nombre: str = Query(""),
     session: AsyncSession = Depends(get_session),
 ):
-    if q:
-        productos_list, total, current_page, total_pages = await producto_repo.buscar_por_nombre_paginado(session, q, page)
+    if busqueda_nombre:
+        productos_list, total, current_page, total_pages = await producto_repo.buscar_por_nombre_paginado(session, busqueda_nombre, page)
     else:
         productos_list, total, current_page, total_pages = await producto_repo.listar_activos_paginado(session, page)
     proveedores_list = await proveedor_repo.listar_activos(session)
@@ -49,13 +50,26 @@ async def productos(
     productos_rows = []
     for p in productos_list:
         prov = proveedores_map.get(p.id_proveedor)
+        nombre_prov = prov.nombre if prov else "—"
         productos_rows.append({
             "id": p.id,
             "Nombre": p.nombre,
-            "Proveedor": prov.nombre if prov else "—",
+            "Proveedor": nombre_prov,
             "Stock": str(p.stock_actual),
             "Costo Unit.": f"${p.costo_unitario:.2f}",
             "Demanda Anual": str(int(p.demanda_anual_estimada)),
+            "detail_data": json.dumps({
+                "titulo": p.nombre,
+                "imagen_url": p.imagen_url or "",
+                "campos": [
+                    {"label": "Nombre", "valor": p.nombre},
+                    {"label": "Proveedor", "valor": nombre_prov},
+                    {"label": "Stock Actual", "valor": str(p.stock_actual)},
+                    {"label": "Costo Unitario", "valor": f"${p.costo_unitario:.2f}"},
+                    {"label": "Costo Almac. Anual", "valor": f"${p.costo_almacenamiento_anual:.2f}"},
+                    {"label": "Demanda Anual Est.", "valor": str(int(p.demanda_anual_estimada))},
+                ],
+            }),
         })
 
     proveedor_options = [(p.id, p.nombre) for p in proveedores_list]
@@ -67,7 +81,7 @@ async def productos(
         "page": current_page,
         "total_pages": total_pages,
         "total": total,
-        "q": q,
+        "busqueda_nombre": busqueda_nombre,
     })
 
 
@@ -149,11 +163,11 @@ async def editar_producto(
 async def proveedores(
     request: Request,
     page: int = Query(1, ge=1),
-    q: str = Query(""),
+    busqueda_nombre: str = Query(""),
     session: AsyncSession = Depends(get_session),
 ):
-    if q:
-        proveedores_list, total, current_page, total_pages = await proveedor_repo.buscar_por_nombre_paginado(session, q, page)
+    if busqueda_nombre:
+        proveedores_list, total, current_page, total_pages = await proveedor_repo.buscar_por_nombre_paginado(session, busqueda_nombre, page)
     else:
         proveedores_list, total, current_page, total_pages = await proveedor_repo.listar_activos_paginado(session, page)
 
@@ -165,6 +179,17 @@ async def proveedores(
             "Costo Pedido": f"${p.costo_pedido_fijo:.2f}",
             "Lead Time": f"{p.lead_time_promedio} días",
             "Nivel Servicio": f"{p.nivel_servicio_objetivo:.0%}",
+            "detail_data": json.dumps({
+                "titulo": p.nombre,
+                "imagen_url": p.imagen_url or "",
+                "campos": [
+                    {"label": "Nombre", "valor": p.nombre},
+                    {"label": "Costo Pedido Fijo", "valor": f"${p.costo_pedido_fijo:.2f}"},
+                    {"label": "Lead Time Promedio", "valor": f"{p.lead_time_promedio} días"},
+                    {"label": "Desv. Est. Lead Time", "valor": f"{p.desviacion_estandar_lead_time:.2f} días"},
+                    {"label": "Nivel Servicio Objetivo", "valor": f"{p.nivel_servicio_objetivo:.0%}"},
+                ],
+            }),
         })
 
     return templates.TemplateResponse(request, "proveedores.html", {
@@ -173,7 +198,7 @@ async def proveedores(
         "page": current_page,
         "total_pages": total_pages,
         "total": total,
-        "q": q,
+        "busqueda_nombre": busqueda_nombre,
     })
 
 
@@ -243,11 +268,11 @@ async def editar_proveedor(
 async def ventas(
     request: Request,
     page: int = Query(1, ge=1),
-    q: str = Query(""),
+    busqueda_nombre: str = Query(""),
     session: AsyncSession = Depends(get_session),
 ):
-    if q:
-        ventas_list, total, current_page, total_pages = await venta_repo.buscar_por_nombre_producto_paginado(session, q, page)
+    if busqueda_nombre:
+        ventas_list, total, current_page, total_pages = await venta_repo.buscar_por_nombre_producto_paginado(session, busqueda_nombre, page)
     else:
         ventas_list, total, current_page, total_pages = await venta_repo.listar_paginado(session, page)
     productos_list = await producto_repo.listar_activos(session)
@@ -256,12 +281,23 @@ async def ventas(
     ventas_rows = []
     for v in ventas_list:
         prod = productos_map.get(v.id_producto)
+        nombre_prod = prod.nombre if prod else "—"
         ventas_rows.append({
             "id": v.id,
             "ID": v.id[:8],
-            "Producto": prod.nombre if prod else "—",
+            "Producto": nombre_prod,
             "Cantidad": str(v.cantidad),
             "Fecha": v.fecha_venta.isoformat(),
+            "detail_data": json.dumps({
+                "titulo": f"Venta {v.id[:8]}",
+                "imagen_url": "",
+                "campos": [
+                    {"label": "ID", "valor": v.id[:8]},
+                    {"label": "Producto", "valor": nombre_prod},
+                    {"label": "Cantidad", "valor": str(v.cantidad)},
+                    {"label": "Fecha", "valor": v.fecha_venta.isoformat()},
+                ],
+            }),
         })
 
     producto_options = [(p.id, p.nombre) for p in productos_list]
@@ -274,7 +310,7 @@ async def ventas(
         "page": current_page,
         "total_pages": total_pages,
         "total": total,
-        "q": q,
+        "busqueda_nombre": busqueda_nombre,
     })
 
 

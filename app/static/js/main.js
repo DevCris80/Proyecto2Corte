@@ -87,3 +87,55 @@ window.closeModal = function (id) {
     document.body.style.overflow = '';
   }
 };
+
+/* ── Detail row click (ignore clicks on actions) ── */
+document.addEventListener('click', function (e) {
+  if (e.target.closest('.actions-cell')) return;
+  var row = e.target.closest('.clickable-row');
+  if (!row) return;
+
+  var raw = row.getAttribute('data-detail');
+  if (!raw) return;
+
+  var data, tipo;
+  try {
+    data = JSON.parse(raw);
+    tipo = row.getAttribute('data-type') || '';
+  } catch (err) {
+    return;
+  }
+
+  var titulo = document.getElementById('detalle-titulo');
+  var imagenCol = document.getElementById('detalle-imagen-col');
+  var imagen = document.getElementById('detalle-imagen');
+  var campos = document.getElementById('detalle-campos');
+  var btnEditar = document.getElementById('detalle-btn-editar');
+  var formEliminar = document.getElementById('detalle-form-eliminar');
+  var id = row.getAttribute('data-id') || '';
+
+  titulo.textContent = data.titulo || 'Detalle';
+
+  if (data.imagen_url) {
+    imagen.src = data.imagen_url;
+    imagenCol.style.display = '';
+  } else {
+    imagenCol.style.display = 'none';
+  }
+
+  var html = '';
+  if (data.campos) {
+    data.campos.forEach(function (f) {
+      html += '<div class="detail-field">';
+      html += '  <span class="detail-field-label">' + (f.label || '') + '</span>';
+      html += '  <span class="detail-field-value">' + (f.valor || '') + '</span>';
+      html += '</div>';
+    });
+  }
+  campos.innerHTML = html;
+
+  btnEditar.href = '/' + tipo + '/' + id + '/editar';
+  formEliminar.action = '/' + tipo + '/' + id + '/delete';
+  formEliminar.setAttribute('data-confirm', '¿Eliminar ' + (data.titulo || 'este registro') + '?');
+
+  window.openModal('modal-detalle');
+});
