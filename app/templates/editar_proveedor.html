@@ -14,7 +14,15 @@
         {{ forms.input('Lead Time Promedio (días)', 'lead_time_promedio', type='number', step='0.01', value=proveedor.lead_time_promedio, required=True) }}
         {{ forms.input('Desviación Estándar Lead Time', 'desviacion_estandar_lead_time', type='number', step='0.01', value=proveedor.desviacion_estandar_lead_time) }}
         {{ forms.input('Nivel Servicio Objetivo (0.80-0.99)', 'nivel_servicio_objetivo', type='number', step='0.01', value=proveedor.nivel_servicio_objetivo) }}
-        {{ forms.input('Imagen (opcional)', 'imagen', type='file') }}
+        <div class="form-group">
+            <label class="meta">Imagen Actual</label>
+            {% if proveedor.imagen_url %}
+            <img src="{{ proveedor.imagen_url }}" alt="Imagen actual" style="width:120px; aspect-ratio:1; object-fit:cover; border-radius:var(--radius-md); border:1px solid var(--border); margin-bottom:0.5rem;">
+            {% else %}
+            <p style="color:var(--text-muted); font-size:0.85rem; margin-bottom:0.5rem;">Sin imagen</p>
+            {% endif %}
+        </div>
+        {{ forms.input('Cambiar imagen (opcional)', 'imagen', type='file') }}
         {{ forms.button('Guardar Cambios', class='btn-primary') }}
     </form>
 </div>

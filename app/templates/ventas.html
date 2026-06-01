@@ -26,7 +26,7 @@
 </form>
 
 <div class="reveal">
-{{ tables.table(ventas_headers, ventas_rows, actions=True, delete_url='ventas', detail=True, detail_type='venta') }}
+{{ tables.table(ventas_headers, ventas_rows, actions=True, delete_url='ventas', detail=True, detail_type='ventas') }}
 </div>
 
 {{ pager.pagination(page, total_pages, '/ventas', busqueda_nombre) }}

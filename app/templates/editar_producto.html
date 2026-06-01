@@ -15,7 +15,15 @@
         {{ forms.input('Costo Unitario', 'costo_unitario', type='number', step='0.01', value=producto.costo_unitario, required=True) }}
         {{ forms.input('Costo Almacenamiento Anual', 'costo_almacenamiento_anual', type='number', step='0.01', value=producto.costo_almacenamiento_anual, required=True) }}
         {{ forms.input('Demanda Anual Estimada', 'demanda_anual_estimada', type='number', step='0.01', value=producto.demanda_anual_estimada, required=True) }}
-        {{ forms.input('Imagen (opcional)', 'imagen', type='file') }}
+        <div class="form-group">
+            <label class="meta">Imagen Actual</label>
+            {% if producto.imagen_url %}
+            <img src="{{ producto.imagen_url }}" alt="Imagen actual" style="width:120px; aspect-ratio:1; object-fit:cover; border-radius:var(--radius-md); border:1px solid var(--border); margin-bottom:0.5rem;">
+            {% else %}
+            <p style="color:var(--text-muted); font-size:0.85rem; margin-bottom:0.5rem;">Sin imagen</p>
+            {% endif %}
+        </div>
+        {{ forms.input('Cambiar imagen (opcional)', 'imagen', type='file') }}
         {{ forms.button('Guardar Cambios', class='btn-primary') }}
     </form>
 </div>

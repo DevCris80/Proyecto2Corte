@@ -1,6 +1,9 @@
 import json
-from fastapi import APIRouter, Depends, Form, Query, UploadFile, File, Request
+import logging
+from typing import Optional
+from fastapi import APIRouter, Depends, Form, Query, Request
 from fastapi.responses import RedirectResponse
+from starlette.datastructures import UploadFile
 from sqlalchemy.ext.asyncio import AsyncSession
 from app.core.database import get_session
 from app.core.templates import templates
@@ -10,6 +13,20 @@ from app.models.proveedor import ProveedorCreate, ProveedorUpdate
 from app.models.venta import VentaCreate
 from app.routes.optimizacion_routes import obtener_alertas_pedidos
 from app.routes.dashboard_routes import obtener_resumen_dashboard
+
+logger = logging.getLogger(__name__)
+logger.setLevel(logging.INFO)
+
+
+async def get_imagen(request: Request) -> Optional[UploadFile]:
+    form = await request.form()
+    imagen = form.get("imagen")
+    logger.info("get_imagen: type=%s, filename=%s",
+                type(imagen).__name__,
+                getattr(imagen, "filename", None))
+    if isinstance(imagen, UploadFile) and imagen.filename:
+        return imagen
+    return None
 
 router = APIRouter(tags=["pages"])
 
@@ -87,7 +104,6 @@ async def productos(
 
 @router.post("/productos")
 async def crear_producto(
-    request: Request,
     session: AsyncSession = Depends(get_session),
     nombre: str = Form(...),
     id_proveedor: str = Form(...),
@@ -95,7 +111,7 @@ async def crear_producto(
     costo_unitario: float = Form(...),
     costo_almacenamiento_anual: float = Form(...),
     demanda_anual_estimada: float = Form(...),
-    imagen: UploadFile = File(None),
+    imagen: Optional[UploadFile] = Depends(get_imagen),
 ):
     datos = ProductoCreate(
         nombre=nombre,
@@ -106,10 +122,14 @@ async def crear_producto(
         demanda_anual_estimada=demanda_anual_estimada,
     )
     producto = await producto_repo.crear(session, datos)
-    if imagen and imagen.filename:
+    if imagen:
         from app.core.storage import subir_imagen_supabase
+        logger.info("crear_producto: uploading image, filename=%s", imagen.filename)
         imagen_url = await subir_imagen_supabase(imagen, folder=f"public/productos/{producto.id}")
-        await producto_repo.actualizar(session, producto.id, ProductoUpdate(imagen_url=imagen_url))
+        logger.info("crear_producto: upload result=%s", imagen_url)
+        if imagen_url:
+            await producto_repo.actualizar(session, producto.id, ProductoUpdate(imagen_url=imagen_url))
+            logger.info("crear_producto: DB updated with new imagen_url")
     return RedirectResponse(url="/productos", status_code=303)
 
 
@@ -146,7 +166,7 @@ async def editar_producto(
     costo_unitario: float = Form(...),
     costo_almacenamiento_anual: float = Form(...),
     demanda_anual_estimada: float = Form(...),
-    imagen: UploadFile = File(None),
+    imagen: Optional[UploadFile] = Depends(get_imagen),
 ):
     datos = ProductoUpdate(
         nombre=nombre,
@@ -157,10 +177,14 @@ async def editar_producto(
         demanda_anual_estimada=demanda_anual_estimada,
     )
     await producto_repo.actualizar(session, id, datos)
-    if imagen and imagen.filename:
+    if imagen:
         from app.core.storage import subir_imagen_supabase
+        logger.info("editar_producto: uploading image, filename=%s", imagen.filename)
         imagen_url = await subir_imagen_supabase(imagen, folder=f"public/productos/{id}")
-        await producto_repo.actualizar(session, id, ProductoUpdate(imagen_url=imagen_url))
+        logger.info("editar_producto: upload result=%s", imagen_url)
+        if imagen_url:
+            await producto_repo.actualizar(session, id, ProductoUpdate(imagen_url=imagen_url))
+            logger.info("editar_producto: DB updated with new imagen_url")
     return RedirectResponse(url="/productos", status_code=303)
 
 
@@ -209,14 +233,13 @@ async def proveedores(
 
 @router.post("/proveedores")
 async def crear_proveedor(
-    request: Request,
     session: AsyncSession = Depends(get_session),
     nombre: str = Form(...),
     costo_pedido_fijo: float = Form(...),
     lead_time_promedio: float = Form(...),
     desviacion_estandar_lead_time: float = Form(0.0),
     nivel_servicio_objetivo: float = Form(0.95),
-    imagen: UploadFile = File(None),
+    imagen: Optional[UploadFile] = Depends(get_imagen),
 ):
     datos = ProveedorCreate(
         nombre=nombre,
@@ -226,10 +249,14 @@ async def crear_proveedor(
         nivel_servicio_objetivo=nivel_servicio_objetivo,
     )
     proveedor = await proveedor_repo.crear(session, datos)
-    if imagen and imagen.filename:
+    if imagen:
         from app.core.storage import subir_imagen_supabase
+        logger.info("crear_proveedor: uploading image, filename=%s", imagen.filename)
         imagen_url = await subir_imagen_supabase(imagen, folder=f"public/proveedores/{proveedor.id}")
-        await proveedor_repo.actualizar(session, proveedor.id, ProveedorUpdate(imagen_url=imagen_url))
+        logger.info("crear_proveedor: upload result=%s", imagen_url)
+        if imagen_url:
+            await proveedor_repo.actualizar(session, proveedor.id, ProveedorUpdate(imagen_url=imagen_url))
+            logger.info("crear_proveedor: DB updated with new imagen_url")
     return RedirectResponse(url="/proveedores", status_code=303)
 
 
@@ -262,7 +289,7 @@ async def editar_proveedor(
     lead_time_promedio: float = Form(...),
     desviacion_estandar_lead_time: float = Form(0.0),
     nivel_servicio_objetivo: float = Form(0.95),
-    imagen: UploadFile = File(None),
+    imagen: Optional[UploadFile] = Depends(get_imagen),
 ):
     datos = ProveedorUpdate(
         nombre=nombre,
@@ -272,10 +299,14 @@ async def editar_proveedor(
         nivel_servicio_objetivo=nivel_servicio_objetivo,
     )
     await proveedor_repo.actualizar(session, id, datos)
-    if imagen and imagen.filename:
+    if imagen:
         from app.core.storage import subir_imagen_supabase
+        logger.info("editar_proveedor: uploading image, filename=%s", imagen.filename)
         imagen_url = await subir_imagen_supabase(imagen, folder=f"public/proveedores/{id}")
-        await proveedor_repo.actualizar(session, id, ProveedorUpdate(imagen_url=imagen_url))
+        logger.info("editar_proveedor: upload result=%s", imagen_url)
+        if imagen_url:
+            await proveedor_repo.actualizar(session, id, ProveedorUpdate(imagen_url=imagen_url))
+            logger.info("editar_proveedor: DB updated with new imagen_url")
     return RedirectResponse(url="/proveedores", status_code=303)
 
 
