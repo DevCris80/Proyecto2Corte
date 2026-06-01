@@ -8,13 +8,14 @@
 </div>
 
 <div class="card" style="max-width:560px; margin:0 auto;" >
-    <form action="/productos/{{ producto.id }}/editar" method="POST">
+    <form action="/productos/{{ producto.id }}/editar" method="POST" enctype="multipart/form-data">
         {{ forms.input('Nombre', 'nombre', value=producto.nombre, required=True) }}
         {{ forms.select('Proveedor', 'id_proveedor', proveedor_options, selected=producto.id_proveedor) }}
         {{ forms.input('Stock Actual', 'stock_actual', type='number', value=producto.stock_actual, required=True) }}
         {{ forms.input('Costo Unitario', 'costo_unitario', type='number', step='0.01', value=producto.costo_unitario, required=True) }}
         {{ forms.input('Costo Almacenamiento Anual', 'costo_almacenamiento_anual', type='number', step='0.01', value=producto.costo_almacenamiento_anual, required=True) }}
         {{ forms.input('Demanda Anual Estimada', 'demanda_anual_estimada', type='number', step='0.01', value=producto.demanda_anual_estimada, required=True) }}
+        {{ forms.input('Imagen (opcional)', 'imagen', type='file') }}
         {{ forms.button('Guardar Cambios', class='btn-primary') }}
     </form>
 </div>

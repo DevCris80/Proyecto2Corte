@@ -146,6 +146,7 @@ async def editar_producto(
     costo_unitario: float = Form(...),
     costo_almacenamiento_anual: float = Form(...),
     demanda_anual_estimada: float = Form(...),
+    imagen: UploadFile = File(None),
 ):
     datos = ProductoUpdate(
         nombre=nombre,
@@ -156,6 +157,10 @@ async def editar_producto(
         demanda_anual_estimada=demanda_anual_estimada,
     )
     await producto_repo.actualizar(session, id, datos)
+    if imagen and imagen.filename:
+        from app.core.storage import subir_imagen_supabase
+        imagen_url = await subir_imagen_supabase(imagen, folder=f"public/productos/{id}")
+        await producto_repo.actualizar(session, id, ProductoUpdate(imagen_url=imagen_url))
     return RedirectResponse(url="/productos", status_code=303)
 
 
@@ -211,6 +216,7 @@ async def crear_proveedor(
     lead_time_promedio: float = Form(...),
     desviacion_estandar_lead_time: float = Form(0.0),
     nivel_servicio_objetivo: float = Form(0.95),
+    imagen: UploadFile = File(None),
 ):
     datos = ProveedorCreate(
         nombre=nombre,
@@ -219,7 +225,11 @@ async def crear_proveedor(
         desviacion_estandar_lead_time=desviacion_estandar_lead_time,
         nivel_servicio_objetivo=nivel_servicio_objetivo,
     )
-    await proveedor_repo.crear(session, datos)
+    proveedor = await proveedor_repo.crear(session, datos)
+    if imagen and imagen.filename:
+        from app.core.storage import subir_imagen_supabase
+        imagen_url = await subir_imagen_supabase(imagen, folder=f"public/proveedores/{proveedor.id}")
+        await proveedor_repo.actualizar(session, proveedor.id, ProveedorUpdate(imagen_url=imagen_url))
     return RedirectResponse(url="/proveedores", status_code=303)
 
 
@@ -252,6 +262,7 @@ async def editar_proveedor(
     lead_time_promedio: float = Form(...),
     desviacion_estandar_lead_time: float = Form(0.0),
     nivel_servicio_objetivo: float = Form(0.95),
+    imagen: UploadFile = File(None),
 ):
     datos = ProveedorUpdate(
         nombre=nombre,
@@ -261,6 +272,10 @@ async def editar_proveedor(
         nivel_servicio_objetivo=nivel_servicio_objetivo,
     )
     await proveedor_repo.actualizar(session, id, datos)
+    if imagen and imagen.filename:
+        from app.core.storage import subir_imagen_supabase
+        imagen_url = await subir_imagen_supabase(imagen, folder=f"public/proveedores/{id}")
+        await proveedor_repo.actualizar(session, id, ProveedorUpdate(imagen_url=imagen_url))
     return RedirectResponse(url="/proveedores", status_code=303)
 
 

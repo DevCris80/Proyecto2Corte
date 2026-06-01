@@ -8,12 +8,13 @@
 </div>
 
 <div class="card" style="max-width:560px; margin:0 auto;" >
-    <form action="/proveedores/{{ proveedor.id }}/editar" method="POST">
+    <form action="/proveedores/{{ proveedor.id }}/editar" method="POST" enctype="multipart/form-data">
         {{ forms.input('Nombre', 'nombre', value=proveedor.nombre, required=True) }}
         {{ forms.input('Costo Pedido Fijo', 'costo_pedido_fijo', type='number', step='0.01', value=proveedor.costo_pedido_fijo, required=True) }}
         {{ forms.input('Lead Time Promedio (días)', 'lead_time_promedio', type='number', step='0.01', value=proveedor.lead_time_promedio, required=True) }}
         {{ forms.input('Desviación Estándar Lead Time', 'desviacion_estandar_lead_time', type='number', step='0.01', value=proveedor.desviacion_estandar_lead_time) }}
         {{ forms.input('Nivel Servicio Objetivo (0.80-0.99)', 'nivel_servicio_objetivo', type='number', step='0.01', value=proveedor.nivel_servicio_objetivo) }}
+        {{ forms.input('Imagen (opcional)', 'imagen', type='file') }}
         {{ forms.button('Guardar Cambios', class='btn-primary') }}
     </form>
 </div>
