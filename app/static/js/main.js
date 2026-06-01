@@ -55,45 +55,7 @@ document.addEventListener('DOMContentLoaded', function () {
     });
   }
 
-  /* ── Sortable table columns ── */
-  document.querySelectorAll('.data-table').forEach(function (table) {
-    var headers = table.querySelectorAll('thead th.sortable');
-    headers.forEach(function (th) {
-      th.addEventListener('click', function () {
-        var col = parseInt(th.getAttribute('data-col'));
-        var tbody = table.querySelector('tbody');
-        if (!tbody) return;
-        var rows = Array.from(tbody.querySelectorAll('tr'));
-
-        var isAsc = th.classList.contains('sort-asc');
-
-        headers.forEach(function (h) {
-          h.classList.remove('sort-asc', 'sort-desc');
-        });
-
-        rows.sort(function (a, b) {
-          var aCell = a.children[col];
-          var bCell = b.children[col];
-          if (!aCell || !bCell) return 0;
-          var aRaw = aCell.textContent.trim();
-          var bRaw = bCell.textContent.trim();
-
-          var aClean = aRaw.replace(/[$,\s]|d[ií]as?|%/g, '').trim();
-          var bClean = bRaw.replace(/[$,\s]|d[ií]as?|%/g, '').trim();
-          var aNum = parseFloat(aClean);
-          var bNum = parseFloat(bClean);
-
-          if (!isNaN(aNum) && !isNaN(bNum)) {
-            return isAsc ? bNum - aNum : aNum - bNum;
-          }
-          return isAsc ? bRaw.localeCompare(aRaw) : aRaw.localeCompare(bRaw);
-        });
-
-        rows.forEach(function (row) { tbody.appendChild(row); });
-        th.classList.add(isAsc ? 'sort-desc' : 'sort-asc');
-      });
-    });
-  });
+  /* ── Sortable table columns (event delegation) ── */
 });
 
 /* ── Sidebar toggle ── */
@@ -127,6 +89,39 @@ window.closeModal = function (id) {
     document.body.style.overflow = '';
   }
 };
+
+/* ── Sortable table columns ── */
+document.addEventListener('click', function (e) {
+  var th = e.target.closest('th.sortable');
+  if (!th) return;
+  var table = th.closest('.data-table');
+  if (!table) return;
+  var col = parseInt(th.getAttribute('data-col'));
+  var tbody = table.querySelector('tbody');
+  if (!tbody) return;
+  var rows = Array.from(tbody.querySelectorAll('tr'));
+  var isAsc = th.classList.contains('sort-asc');
+  table.querySelectorAll('thead th.sortable').forEach(function (h) {
+    h.classList.remove('sort-asc', 'sort-desc');
+  });
+  rows.sort(function (a, b) {
+    var aCell = a.children[col];
+    var bCell = b.children[col];
+    if (!aCell || !bCell) return 0;
+    var aRaw = aCell.textContent.trim();
+    var bRaw = bCell.textContent.trim();
+    var aClean = aRaw.replace(/[$,\s]|d[ií]as?|%/g, '').trim();
+    var bClean = bRaw.replace(/[$,\s]|d[ií]as?|%/g, '').trim();
+    var aNum = parseFloat(aClean);
+    var bNum = parseFloat(bClean);
+    if (!isNaN(aNum) && !isNaN(bNum)) {
+      return isAsc ? bNum - aNum : aNum - bNum;
+    }
+    return isAsc ? bRaw.localeCompare(aRaw) : aRaw.localeCompare(bRaw);
+  });
+  rows.forEach(function (row) { tbody.appendChild(row); });
+  th.classList.add(isAsc ? 'sort-desc' : 'sort-asc');
+});
 
 /* ── Detail row click (ignore clicks on actions) ── */
 document.addEventListener('click', function (e) {
