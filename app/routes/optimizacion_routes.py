@@ -1,3 +1,4 @@
+import time
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -8,11 +9,19 @@ from app.logic.math import calcular_optimizacion
 
 router = APIRouter(prefix="/optimizar", tags=["motor matematico"])
 
+_cache: dict = {}
+_CACHE_TTL = 60  # seconds
+
 
 @router.get("/pedidos", response_model=list[OrdenSugerida], status_code=200)
 async def obtener_alertas_pedidos(
     session: AsyncSession = Depends(get_session),
 ):
+    now = time.time()
+    cached = _cache.get("alertas_pedidos")
+    if cached and now - cached["time"] < _CACHE_TTL:
+        return cached["data"]
+
     productos = await producto_repo.listar_activos(session)
     proveedores = {
         p.id: p
@@ -32,6 +41,7 @@ async def obtener_alertas_pedidos(
         if resultado.estado_alerta != EstadoAlerta.OPTIMO:
             alertas.append(resultado)
 
+    _cache["alertas_pedidos"] = {"time": now, "data": alertas}
     return alertas
 
 
