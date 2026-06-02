@@ -5,6 +5,8 @@ from fastapi import APIRouter, Depends, Form, Query, Request
 from fastapi.responses import RedirectResponse
 from starlette.datastructures import UploadFile
 from sqlalchemy.ext.asyncio import AsyncSession
+
+from app.core.storage import subir_imagen_supabase
 from app.core.database import get_session
 from app.core.templates import templates
 from app.repository import producto_repo, proveedor_repo, venta_repo
@@ -123,7 +125,6 @@ async def crear_producto(
     )
     producto = await producto_repo.crear(session, datos)
     if imagen:
-        from app.core.storage import subir_imagen_supabase
         logger.info("crear_producto: uploading image, filename=%s", imagen.filename)
         imagen_url = await subir_imagen_supabase(imagen, folder=f"public/productos/{producto.id}")
         logger.info("crear_producto: upload result=%s", imagen_url)
@@ -178,7 +179,6 @@ async def editar_producto(
     )
     await producto_repo.actualizar(session, id, datos)
     if imagen:
-        from app.core.storage import subir_imagen_supabase
         logger.info("editar_producto: uploading image, filename=%s", imagen.filename)
         imagen_url = await subir_imagen_supabase(imagen, folder=f"public/productos/{id}")
         logger.info("editar_producto: upload result=%s", imagen_url)
@@ -250,7 +250,6 @@ async def crear_proveedor(
     )
     proveedor = await proveedor_repo.crear(session, datos)
     if imagen:
-        from app.core.storage import subir_imagen_supabase
         logger.info("crear_proveedor: uploading image, filename=%s", imagen.filename)
         imagen_url = await subir_imagen_supabase(imagen, folder=f"public/proveedores/{proveedor.id}")
         logger.info("crear_proveedor: upload result=%s", imagen_url)
@@ -300,7 +299,6 @@ async def editar_proveedor(
     )
     await proveedor_repo.actualizar(session, id, datos)
     if imagen:
-        from app.core.storage import subir_imagen_supabase
         logger.info("editar_proveedor: uploading image, filename=%s", imagen.filename)
         imagen_url = await subir_imagen_supabase(imagen, folder=f"public/proveedores/{id}")
         logger.info("editar_proveedor: upload result=%s", imagen_url)

@@ -1,5 +1,4 @@
 from contextlib import asynccontextmanager
-from urllib.parse import urlparse
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
@@ -14,6 +13,16 @@ from app.routes.ventas_routes import router as ventas_router
 from app.routes.optimizacion_routes import router as optimizacion_router
 from app.routes.dashboard_routes import router as dashboard_router
 
+"""
+@contextmanager
+def lifespan(app: FastAPI):
+    # Creación de tablas síncrona
+    SQLModel.metadata.create_all(engine)
+    yield
+    # Limpieza de conexiones al apagar
+    engine.dispose()
+"""
+
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -25,13 +34,6 @@ async def lifespan(app: FastAPI):
 
 
 app = FastAPI(lifespan=lifespan)
-
-app.add_middleware(
-    CORSMiddleware,
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
 
 app.include_router(pages_router)
 app.mount("/static", StaticFiles(directory="app/static"), name="static")
