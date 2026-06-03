@@ -1,9 +1,7 @@
 import json
-import logging
 from typing import Optional
-from fastapi import APIRouter, Depends, Form, Query, Request
+from fastapi import APIRouter, Depends, Form, Query, Request, UploadFile
 from fastapi.responses import RedirectResponse
-from starlette.datastructures import UploadFile
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.storage import subir_imagen_supabase
@@ -16,16 +14,10 @@ from app.models.venta import VentaCreate
 from app.routes.optimizacion_routes import obtener_alertas_pedidos
 from app.routes.dashboard_routes import obtener_resumen_dashboard
 
-logger = logging.getLogger(__name__)
-logger.setLevel(logging.INFO)
-
-
-async def get_imagen(request: Request) -> Optional[UploadFile]:
+async def get_imagen(request: Request) -> UploadFile | None:
     form = await request.form()
     imagen = form.get("imagen")
-    logger.info("get_imagen: type=%s, filename=%s",
-                type(imagen).__name__,
-                getattr(imagen, "filename", None))
+
     if isinstance(imagen, UploadFile) and imagen.filename:
         return imagen
     return None
@@ -75,7 +67,7 @@ async def productos(
             "Nombre": p.nombre,
             "Proveedor": nombre_prov,
             "Stock": str(p.stock_actual),
-            "Costo Unit.": f"${p.costo_unitario:.2f}",
+            "Costo Unit.": f"${p.costo_unitario:,.2f}",
             "Demanda Anual": str(int(p.demanda_anual_estimada)),
             "detail_data": json.dumps({
                 "titulo": p.nombre,
@@ -84,8 +76,8 @@ async def productos(
                     {"label": "Nombre", "valor": p.nombre},
                     {"label": "Proveedor", "valor": nombre_prov},
                     {"label": "Stock Actual", "valor": str(p.stock_actual)},
-                    {"label": "Costo Unitario", "valor": f"${p.costo_unitario:.2f}"},
-                    {"label": "Costo Almac. Anual", "valor": f"${p.costo_almacenamiento_anual:.2f}"},
+                    {"label": "Costo Unitario", "valor": f"${p.costo_unitario:,.2f}"},
+                    {"label": "Costo Almac. Anual", "valor": f"${p.costo_almacenamiento_anual:,.2f}"},
                     {"label": "Demanda Anual Est.", "valor": str(int(p.demanda_anual_estimada))},
                 ],
             }),
@@ -113,7 +105,7 @@ async def crear_producto(
     costo_unitario: float = Form(...),
     costo_almacenamiento_anual: float = Form(...),
     demanda_anual_estimada: float = Form(...),
-    imagen: Optional[UploadFile] = Depends(get_imagen),
+    imagen: UploadFile | None = Depends(get_imagen),
 ):
     datos = ProductoCreate(
         nombre=nombre,
@@ -125,12 +117,9 @@ async def crear_producto(
     )
     producto = await producto_repo.crear(session, datos)
     if imagen:
-        logger.info("crear_producto: uploading image, filename=%s", imagen.filename)
         imagen_url = await subir_imagen_supabase(imagen, folder=f"public/productos/{producto.id}")
-        logger.info("crear_producto: upload result=%s", imagen_url)
         if imagen_url:
             await producto_repo.actualizar(session, producto.id, ProductoUpdate(imagen_url=imagen_url))
-            logger.info("crear_producto: DB updated with new imagen_url")
     return RedirectResponse(url="/productos", status_code=303)
 
 
@@ -167,7 +156,7 @@ async def editar_producto(
     costo_unitario: float = Form(...),
     costo_almacenamiento_anual: float = Form(...),
     demanda_anual_estimada: float = Form(...),
-    imagen: Optional[UploadFile] = Depends(get_imagen),
+    imagen: UploadFile | None = Depends(get_imagen),
 ):
     datos = ProductoUpdate(
         nombre=nombre,
@@ -179,12 +168,9 @@ async def editar_producto(
     )
     await producto_repo.actualizar(session, id, datos)
     if imagen:
-        logger.info("editar_producto: uploading image, filename=%s", imagen.filename)
         imagen_url = await subir_imagen_supabase(imagen, folder=f"public/productos/{id}")
-        logger.info("editar_producto: upload result=%s", imagen_url)
         if imagen_url:
             await producto_repo.actualizar(session, id, ProductoUpdate(imagen_url=imagen_url))
-            logger.info("editar_producto: DB updated with new imagen_url")
     return RedirectResponse(url="/productos", status_code=303)
 
 
@@ -205,7 +191,7 @@ async def proveedores(
         proveedores_rows.append({
             "id": p.id,
             "Nombre": p.nombre,
-            "Costo Pedido": f"${p.costo_pedido_fijo:.2f}",
+            "Costo Pedido": f"${p.costo_pedido_fijo:,.2f}",
             "Lead Time": f"{p.lead_time_promedio} días",
             "Nivel Servicio": f"{p.nivel_servicio_objetivo:.0%}",
             "detail_data": json.dumps({
@@ -213,7 +199,7 @@ async def proveedores(
                 "imagen_url": p.imagen_url or "",
                 "campos": [
                     {"label": "Nombre", "valor": p.nombre},
-                    {"label": "Costo Pedido Fijo", "valor": f"${p.costo_pedido_fijo:.2f}"},
+                    {"label": "Costo Pedido Fijo", "valor": f"${p.costo_pedido_fijo:,.2f}"},
                     {"label": "Lead Time Promedio", "valor": f"{p.lead_time_promedio} días"},
                     {"label": "Desv. Est. Lead Time", "valor": f"{p.desviacion_estandar_lead_time:.2f} días"},
                     {"label": "Nivel Servicio Objetivo", "valor": f"{p.nivel_servicio_objetivo:.0%}"},
@@ -239,7 +225,7 @@ async def crear_proveedor(
     lead_time_promedio: float = Form(...),
     desviacion_estandar_lead_time: float = Form(0.0),
     nivel_servicio_objetivo: float = Form(0.95),
-    imagen: Optional[UploadFile] = Depends(get_imagen),
+    imagen: UploadFile | None = Depends(get_imagen),
 ):
     datos = ProveedorCreate(
         nombre=nombre,
@@ -250,12 +236,9 @@ async def crear_proveedor(
     )
     proveedor = await proveedor_repo.crear(session, datos)
     if imagen:
-        logger.info("crear_proveedor: uploading image, filename=%s", imagen.filename)
         imagen_url = await subir_imagen_supabase(imagen, folder=f"public/proveedores/{proveedor.id}")
-        logger.info("crear_proveedor: upload result=%s", imagen_url)
         if imagen_url:
             await proveedor_repo.actualizar(session, proveedor.id, ProveedorUpdate(imagen_url=imagen_url))
-            logger.info("crear_proveedor: DB updated with new imagen_url")
     return RedirectResponse(url="/proveedores", status_code=303)
 
 
@@ -288,7 +271,7 @@ async def editar_proveedor(
     lead_time_promedio: float = Form(...),
     desviacion_estandar_lead_time: float = Form(0.0),
     nivel_servicio_objetivo: float = Form(0.95),
-    imagen: Optional[UploadFile] = Depends(get_imagen),
+    imagen: UploadFile | None = Depends(get_imagen),
 ):
     datos = ProveedorUpdate(
         nombre=nombre,
@@ -299,12 +282,9 @@ async def editar_proveedor(
     )
     await proveedor_repo.actualizar(session, id, datos)
     if imagen:
-        logger.info("editar_proveedor: uploading image, filename=%s", imagen.filename)
         imagen_url = await subir_imagen_supabase(imagen, folder=f"public/proveedores/{id}")
-        logger.info("editar_proveedor: upload result=%s", imagen_url)
         if imagen_url:
             await proveedor_repo.actualizar(session, id, ProveedorUpdate(imagen_url=imagen_url))
-            logger.info("editar_proveedor: DB updated with new imagen_url")
     return RedirectResponse(url="/proveedores", status_code=303)
 
 

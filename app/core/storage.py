@@ -1,10 +1,8 @@
 import uuid
-import logging
 from fastapi import UploadFile
 from supabase import create_client, Client
 from app.core.config import settings
 
-logger = logging.getLogger(__name__)
 
 
 def _supabase_configured() -> bool:
@@ -13,7 +11,6 @@ def _supabase_configured() -> bool:
 
 async def subir_imagen_supabase(path_file: UploadFile, folder: str = "general") -> str | None:
     if not _supabase_configured():
-        logger.warning("Supabase no configurado, imagen no subida")
         return None
 
     supabase: Client = create_client(settings.supabase_url, settings.supabase_key)
@@ -33,5 +30,4 @@ async def subir_imagen_supabase(path_file: UploadFile, folder: str = "general") 
         public_url = supabase.storage.from_(settings.supabase_bucket).get_public_url(unique_filename)
         return public_url
     except Exception as e:
-        logger.error("Error al subir archivo a Supabase: %s", e)
         return None
