@@ -747,13 +747,13 @@ ul li:last-child {
 .chart-container {
   display: flex;
   align-items: flex-end;
-  gap: 0.5rem;
+  gap: 2rem;
   height: 180px;
   padding: 0 0.5rem;
+  justify-content: center;
 }
 
 .chart-bar-wrapper {
-  flex: 1;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -779,7 +779,7 @@ ul li:last-child {
 
 .chart-bar-label {
   font-family: 'Geist Mono', monospace;
-  font-size: 8px;
+  font-size: 12px;
   font-weight: 500;
   letter-spacing: 0.05em;
   color: var(--text-secondary);
@@ -789,7 +789,7 @@ ul li:last-child {
 
 .chart-bar-value {
   font-family: 'Geist Mono', monospace;
-  font-size: 9px;
+  font-size: 12px;
   font-weight: 600;
   color: var(--text-primary);
 }
