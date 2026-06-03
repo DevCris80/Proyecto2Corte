@@ -1,4 +1,34 @@
+/* ── Toast system ── */
+function showToast(msg, type) {
+  type = type || 'success';
+  var container = document.getElementById('toast-container');
+  if (!container) return;
+  var el = document.createElement('div');
+  el.className = 'toast toast-' + type;
+  el.textContent = msg;
+  container.appendChild(el);
+  requestAnimationFrame(function () {
+    el.classList.add('toast-visible');
+  });
+  setTimeout(function () {
+    el.classList.remove('toast-visible');
+    el.addEventListener('transitionend', function () { el.remove(); });
+  }, 5000);
+}
+
 document.addEventListener('DOMContentLoaded', function () {
+  /* ── Read toast from query params ── */
+  var params = new URLSearchParams(window.location.search);
+  var msg = params.get('toast');
+  if (msg) {
+    showToast(msg, params.get('toast_type') || 'success');
+    /* clean URL without reload */
+    params.delete('toast');
+    params.delete('toast_type');
+    var qs = params.toString();
+    var url = window.location.pathname + (qs ? '?' + qs : '');
+    history.replaceState(null, '', url);
+  }
 
   /* ── Confirm dialogs ── */
   document.querySelectorAll('[data-confirm]').forEach(function (el) {

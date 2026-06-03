@@ -3,7 +3,8 @@ from fastapi import APIRouter, Depends, Form, Query, Request, UploadFile
 from fastapi.responses import RedirectResponse
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.core.storage import subir_imagen_supabase
+from urllib.parse import urlencode
+from app.core.storage import subir_imagen_supabase, validar_mime_imagen
 from app.core.database import get_session
 from app.core.templates import templates
 from app.repository import producto_repo, proveedor_repo, venta_repo
@@ -121,7 +122,6 @@ async def productos(
 
 @router.post("/productos")
 async def crear_producto(
-    request: Request,
     session: AsyncSession = Depends(get_session),
     nombre: str = Form(...),
     id_proveedor: str = Form(...),
@@ -129,7 +129,13 @@ async def crear_producto(
     costo_unitario: float = Form(...),
     costo_almacenamiento_anual: float = Form(...),
     demanda_anual_estimada: float = Form(...),
+    imagen: UploadFile | None = Form(None),
 ):
+    if imagen and imagen.filename:
+        error = validar_mime_imagen(imagen)
+        if error:
+            qs = urlencode({"toast": error, "toast_type": "error"})
+            return RedirectResponse(url=f"/productos?{qs}", status_code=303)
     datos = ProductoCreate(
         nombre=nombre,
         id_proveedor=id_proveedor,
@@ -139,9 +145,7 @@ async def crear_producto(
         demanda_anual_estimada=demanda_anual_estimada,
     )
     producto = await producto_repo.crear(session, datos)
-    form = await request.form()
-    imagen = form.get("imagen")
-    if isinstance(imagen, UploadFile) and imagen.filename:
+    if imagen and imagen.filename:
         imagen_url = await subir_imagen_supabase(imagen, folder=f"public/productos/{producto.id}")
         if imagen_url:
             await producto_repo.actualizar(session, producto.id, ProductoUpdate(imagen_url=imagen_url))
@@ -173,7 +177,6 @@ async def editar_producto_form(
 
 @router.post("/productos/{id}/editar")
 async def editar_producto(
-    request: Request,
     id: str,
     session: AsyncSession = Depends(get_session),
     nombre: str = Form(...),
@@ -182,7 +185,13 @@ async def editar_producto(
     costo_unitario: float = Form(...),
     costo_almacenamiento_anual: float = Form(...),
     demanda_anual_estimada: float = Form(...),
+    imagen: UploadFile | None = Form(None),
 ):
+    if imagen and imagen.filename:
+        error = validar_mime_imagen(imagen)
+        if error:
+            qs = urlencode({"toast": error, "toast_type": "error"})
+            return RedirectResponse(url=f"/productos?{qs}", status_code=303)
     datos = ProductoUpdate(
         nombre=nombre,
         id_proveedor=id_proveedor,
@@ -192,9 +201,7 @@ async def editar_producto(
         demanda_anual_estimada=demanda_anual_estimada,
     )
     await producto_repo.actualizar(session, id, datos)
-    form = await request.form()
-    imagen = form.get("imagen")
-    if isinstance(imagen, UploadFile) and imagen.filename:
+    if imagen and imagen.filename:
         imagen_url = await subir_imagen_supabase(imagen, folder=f"public/productos/{id}")
         if imagen_url:
             await producto_repo.actualizar(session, id, ProductoUpdate(imagen_url=imagen_url))
@@ -286,14 +293,19 @@ async def proveedores(
 
 @router.post("/proveedores")
 async def crear_proveedor(
-    request: Request,
     session: AsyncSession = Depends(get_session),
     nombre: str = Form(...),
     costo_pedido_fijo: float = Form(...),
     lead_time_promedio: float = Form(...),
     desviacion_estandar_lead_time: float = Form(0.0),
     nivel_servicio_objetivo: float = Form(0.95),
+    imagen: UploadFile | None = Form(None),
 ):
+    if imagen and imagen.filename:
+        error = validar_mime_imagen(imagen)
+        if error:
+            qs = urlencode({"toast": error, "toast_type": "error"})
+            return RedirectResponse(url=f"/proveedores?{qs}", status_code=303)
     datos = ProveedorCreate(
         nombre=nombre,
         costo_pedido_fijo=costo_pedido_fijo,
@@ -302,9 +314,7 @@ async def crear_proveedor(
         nivel_servicio_objetivo=nivel_servicio_objetivo,
     )
     proveedor = await proveedor_repo.crear(session, datos)
-    form = await request.form()
-    imagen = form.get("imagen")
-    if isinstance(imagen, UploadFile) and imagen.filename:
+    if imagen and imagen.filename:
         imagen_url = await subir_imagen_supabase(imagen, folder=f"public/proveedores/{proveedor.id}")
         if imagen_url:
             await proveedor_repo.actualizar(session, proveedor.id, ProveedorUpdate(imagen_url=imagen_url))
@@ -333,7 +343,6 @@ async def editar_proveedor_form(
 
 @router.post("/proveedores/{id}/editar")
 async def editar_proveedor(
-    request: Request,
     id: str,
     session: AsyncSession = Depends(get_session),
     nombre: str = Form(...),
@@ -341,7 +350,13 @@ async def editar_proveedor(
     lead_time_promedio: float = Form(...),
     desviacion_estandar_lead_time: float = Form(0.0),
     nivel_servicio_objetivo: float = Form(0.95),
+    imagen: UploadFile | None = Form(None),
 ):
+    if imagen and imagen.filename:
+        error = validar_mime_imagen(imagen)
+        if error:
+            qs = urlencode({"toast": error, "toast_type": "error"})
+            return RedirectResponse(url=f"/proveedores?{qs}", status_code=303)
     datos = ProveedorUpdate(
         nombre=nombre,
         costo_pedido_fijo=costo_pedido_fijo,
@@ -350,9 +365,7 @@ async def editar_proveedor(
         nivel_servicio_objetivo=nivel_servicio_objetivo,
     )
     await proveedor_repo.actualizar(session, id, datos)
-    form = await request.form()
-    imagen = form.get("imagen")
-    if isinstance(imagen, UploadFile) and imagen.filename:
+    if imagen and imagen.filename:
         imagen_url = await subir_imagen_supabase(imagen, folder=f"public/proveedores/{id}")
         if imagen_url:
             await proveedor_repo.actualizar(session, id, ProveedorUpdate(imagen_url=imagen_url))

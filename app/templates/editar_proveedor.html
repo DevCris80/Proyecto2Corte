@@ -22,7 +22,7 @@
             <p style="color:var(--text-muted); font-size:0.85rem; margin-bottom:0.5rem;">Sin imagen</p>
             {% endif %}
         </div>
-        {{ forms.input('Cambiar imagen (opcional)', 'imagen', type='file') }}
+        {{ forms.input('Cambiar imagen (opcional)', 'imagen', type='file', extra='accept="image/jpeg,image/png,image/webp,image/gif,image/avif"') }}
         {{ forms.button('Guardar Cambios', class='btn-primary') }}
     </form>
 </div>

@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+{% block title %}Error {{ status_code }} - SISPRO{% endblock %}
+{% block content %}
+<div class="page-header">
+    <h1>Error {{ status_code }}</h1>
+    <a href="/" class="btn btn-ghost">&larr; Volver al inicio</a>
+</div>
+<div class="card" style="max-width:720px; margin:0 auto; padding:2rem;">
+    <p style="color:var(--danger); font-size:1.1rem; margin-bottom:1rem;">{{ detail }}</p>
+    {% if traceback %}
+    <details style="margin-top:1rem;">
+        <summary style="cursor:pointer; color:var(--text-secondary);">Ver traza completa</summary>
+        <pre style="margin-top:0.5rem; padding:1rem; background:rgba(255,0,0,0.05); border-radius:var(--radius-sm); font-size:0.75rem; line-height:1.5; overflow-x:auto; color:var(--text-secondary); white-space:pre-wrap;">{{ traceback }}</pre>
+    </details>
+    {% endif %}
+</div>
+{% endblock %}

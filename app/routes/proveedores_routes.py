@@ -2,7 +2,7 @@ from fastapi import APIRouter, Depends, HTTPException, UploadFile, File
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.database import get_session
-from app.core.storage import subir_imagen_supabase
+from app.core.storage import subir_imagen_supabase, validar_mime_imagen
 from app.models.proveedor import ProveedorCreate, ProveedorPublic, ProveedorUpdate
 from app.repository import proveedor_repo
 
@@ -61,8 +61,14 @@ async def subir_imagen_proveedor(
     proveedor = await proveedor_repo.obtener_por_id(session, id)
     if not proveedor:
         raise HTTPException(status_code=404, detail="Proveedor no encontrado.")
+
+    error = validar_mime_imagen(file)
+    if error:
+        raise HTTPException(status_code=400, detail=error)
     
     url_imagen = await subir_imagen_supabase(file, folder="public/proveedores")
+    if not url_imagen:
+        raise HTTPException(status_code=500, detail="Error al subir la imagen.")
     
     actualizacion = ProveedorUpdate(imagen_url=url_imagen)
     return await proveedor_repo.actualizar(session, id, actualizacion)

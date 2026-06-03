@@ -45,7 +45,7 @@
     {{ forms.input('Lead Time Promedio (días)', 'lead_time_promedio', type='number', step='0.01', required=True) }}
     {{ forms.input('Desviación Estándar Lead Time', 'desviacion_estandar_lead_time', type='number', step='0.01', value='0') }}
     {{ forms.input('Nivel Servicio Objetivo (0.80-0.99)', 'nivel_servicio_objetivo', type='number', step='0.01', value='0.95') }}
-    {{ forms.input('Imagen (opcional)', 'imagen', type='file') }}
+    {{ forms.input('Imagen (opcional)', 'imagen', type='file', extra='accept="image/jpeg,image/png,image/webp,image/gif,image/avif"') }}
     {{ forms.button('Guardar', class='btn-primary') }}
 </form>
 {% endset %}

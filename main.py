@@ -1,11 +1,14 @@
+import traceback as tb
 from contextlib import asynccontextmanager
 
-from fastapi import FastAPI
+from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
+from fastapi.responses import PlainTextResponse
 from sqlmodel import SQLModel
 
 from app.core.database import engine
+from app.core.templates import templates
 from app.routes.pages import router as pages_router
 from app.routes.proveedores_routes import router as proveedor_router
 from app.routes.productos_routes import router as productos_router
@@ -34,6 +37,24 @@ async def lifespan(app: FastAPI):
 
 
 app = FastAPI(lifespan=lifespan)
+
+
+@app.exception_handler(Exception)
+async def global_exception_handler(request: Request, exc: Exception):
+    try:
+        trace = "".join(tb.format_exception(type(exc), exc, exc.__traceback__))
+        status = getattr(exc, "status_code", 500)
+        return templates.TemplateResponse(request, "error.html", {
+            "status_code": status,
+            "detail": str(exc) or "Error interno del servidor",
+            "traceback": trace,
+        }, status_code=status)
+    except Exception:
+        return PlainTextResponse(
+            f"Error interno del servidor: {exc}",
+            status_code=500,
+        )
+
 
 app.include_router(pages_router)
 app.mount("/static", StaticFiles(directory="app/static"), name="static")

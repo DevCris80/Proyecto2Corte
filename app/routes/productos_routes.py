@@ -2,7 +2,7 @@ from fastapi import APIRouter, Depends, HTTPException, UploadFile, File, Query
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core.database import get_session
-from app.core.storage import subir_imagen_supabase
+from app.core.storage import subir_imagen_supabase, validar_mime_imagen
 from app.models.producto import ProductoCreate, ProductoPublic, ProductoUpdate
 from app.repository import producto_repo, proveedor_repo
 
@@ -89,8 +89,14 @@ async def subir_imagen_producto(
     producto = await producto_repo.obtener_por_id(session, id)
     if not producto:
         raise HTTPException(status_code=404, detail="Producto no encontrado.")
+
+    error = validar_mime_imagen(file)
+    if error:
+        raise HTTPException(status_code=400, detail=error)
     
     url_imagen = await subir_imagen_supabase(file, folder="public/productos")
+    if not url_imagen:
+        raise HTTPException(status_code=500, detail="Error al subir la imagen.")
     
     actualizacion = ProductoUpdate(imagen_url=url_imagen)
     return await producto_repo.actualizar(session, id, actualizacion)
