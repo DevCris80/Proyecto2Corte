@@ -211,8 +211,6 @@ async def buscar_con_filtros_paginado(
     stock_max: int | None = None,
     demanda_min: float | None = None,
     demanda_max: float | None = None,
-    ordenar_por: str = "nombre",
-    orden_dir: str = "asc",
     page: int = 1,
     per_page: int = 50,
 ) -> tuple[list[Producto], int, int, int]:
@@ -226,15 +224,6 @@ async def buscar_con_filtros_paginado(
         demanda_min=demanda_min,
         demanda_max=demanda_max,
     )
-
-    col_map = {
-        "nombre": Producto.nombre,
-        "costo_unitario": Producto.costo_unitario,
-        "stock_actual": Producto.stock_actual,
-        "demanda_anual_estimada": Producto.demanda_anual_estimada,
-    }
-    col = col_map.get(ordenar_por, Producto.nombre)
-    order = col.asc() if orden_dir == "asc" else col.desc()
 
     total = await contar_con_filtros(
         session,
@@ -252,7 +241,7 @@ async def buscar_con_filtros_paginado(
     query = (
         select(Producto)
         .where(*conditions)
-        .order_by(order)
+        .order_by(Producto.nombre.asc())
         .offset((page - 1) * per_page)
         .limit(per_page)
     )

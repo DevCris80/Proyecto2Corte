@@ -30,16 +30,7 @@
         <input type="number" step="1" name="costo_max" placeholder="Precio máx." value="{{ costo_max_filtro }}">
         <input type="number" step="1" name="stock_min" placeholder="Stock mín." value="{{ stock_min_filtro }}">
         <input type="number" step="1" name="stock_max" placeholder="Stock máx." value="{{ stock_max_filtro }}">
-        <select name="ordenar_por">
-            <option value="nombre"{% if ordenar_por == "nombre" %} selected{% endif %}>Nombre</option>
-            <option value="costo_unitario"{% if ordenar_por == "costo_unitario" %} selected{% endif %}>Precio</option>
-            <option value="stock_actual"{% if ordenar_por == "stock_actual" %} selected{% endif %}>Stock</option>
-            <option value="demanda_anual_estimada"{% if ordenar_por == "demanda_anual_estimada" %} selected{% endif %}>Demanda</option>
-        </select>
-        <select name="orden_dir">
-            <option value="asc"{% if orden_dir == "asc" %} selected{% endif %}>Ascendente</option>
-            <option value="desc"{% if orden_dir == "desc" %} selected{% endif %}>Descendente</option>
-        </select>
+
         <button type="submit" class="btn btn-primary">Filtrar</button>
     </form>
 </details>

@@ -177,8 +177,6 @@ async def buscar_con_filtros_paginado(
     costo_min: float | None = None,
     costo_max: float | None = None,
     nivel_servicio_min: float | None = None,
-    ordenar_por: str = "nombre",
-    orden_dir: str = "asc",
     page: int = 1,
     per_page: int = 50,
 ) -> tuple[list[Proveedor], int, int, int]:
@@ -190,15 +188,6 @@ async def buscar_con_filtros_paginado(
         costo_max=costo_max,
         nivel_servicio_min=nivel_servicio_min,
     )
-
-    col_map = {
-        "nombre": Proveedor.nombre,
-        "lead_time_promedio": Proveedor.lead_time_promedio,
-        "costo_pedido_fijo": Proveedor.costo_pedido_fijo,
-        "nivel_servicio_objetivo": Proveedor.nivel_servicio_objetivo,
-    }
-    col = col_map.get(ordenar_por, Proveedor.nombre)
-    order = col.asc() if orden_dir == "asc" else col.desc()
 
     total = await contar_con_filtros(
         session,
@@ -214,7 +203,7 @@ async def buscar_con_filtros_paginado(
     query = (
         select(Proveedor)
         .where(*conditions)
-        .order_by(order)
+        .order_by(Proveedor.nombre.asc())
         .offset((page - 1) * per_page)
         .limit(per_page)
     )

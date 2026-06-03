@@ -25,16 +25,7 @@
         <input type="number" step="1" name="costo_min" placeholder="Costo pedido mín." value="{{ costo_min_filtro }}">
         <input type="number" step="1" name="costo_max" placeholder="Costo pedido máx." value="{{ costo_max_filtro }}">
         <input type="number" step="0.01" name="nivel_servicio_min" placeholder="Nivel servicio ≥" value="{{ nivel_servicio_min_filtro }}">
-        <select name="ordenar_por">
-            <option value="nombre"{% if ordenar_por == "nombre" %} selected{% endif %}>Nombre</option>
-            <option value="lead_time_promedio"{% if ordenar_por == "lead_time_promedio" %} selected{% endif %}>Lead Time</option>
-            <option value="costo_pedido_fijo"{% if ordenar_por == "costo_pedido_fijo" %} selected{% endif %}>Costo Pedido</option>
-            <option value="nivel_servicio_objetivo"{% if ordenar_por == "nivel_servicio_objetivo" %} selected{% endif %}>Nivel Servicio</option>
-        </select>
-        <select name="orden_dir">
-            <option value="asc"{% if orden_dir == "asc" %} selected{% endif %}>Ascendente</option>
-            <option value="desc"{% if orden_dir == "desc" %} selected{% endif %}>Descendente</option>
-        </select>
+
         <button type="submit" class="btn btn-primary">Filtrar</button>
     </form>
 </details>

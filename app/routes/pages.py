@@ -45,8 +45,6 @@ async def productos(
     costo_max: str = Query(""),
     stock_min: str = Query(""),
     stock_max: str = Query(""),
-    ordenar_por: str = Query("nombre"),
-    orden_dir: str = Query("asc"),
     session: AsyncSession = Depends(get_session),
 ):
     costo_min_val = float(costo_min) if costo_min != "" else None
@@ -62,8 +60,6 @@ async def productos(
         costo_max=costo_max_val,
         stock_min=stock_min_val,
         stock_max=stock_max_val,
-        ordenar_por=ordenar_por,
-        orden_dir=orden_dir,
         page=page,
     )
     proveedores_list = await proveedor_repo.listar_activos(session)
@@ -105,8 +101,6 @@ async def productos(
         "costo_max": costo_max,
         "stock_min": stock_min,
         "stock_max": stock_max,
-        "ordenar_por": ordenar_por,
-        "orden_dir": orden_dir,
     }
 
     return templates.TemplateResponse(request, "productos.html", {
@@ -122,8 +116,6 @@ async def productos(
         "costo_max_filtro": costo_max,
         "stock_min_filtro": stock_min,
         "stock_max_filtro": stock_max,
-        "ordenar_por": ordenar_por,
-        "orden_dir": orden_dir,
         "filtros_activos": filtros_activos,
         "extra_params": extra_params,
     })
@@ -217,8 +209,6 @@ async def proveedores(
     costo_min: str = Query(""),
     costo_max: str = Query(""),
     nivel_servicio_min: str = Query(""),
-    ordenar_por: str = Query("nombre"),
-    orden_dir: str = Query("asc"),
     session: AsyncSession = Depends(get_session),
 ):
     lead_time_min_val = float(lead_time_min) if lead_time_min != "" else None
@@ -235,8 +225,6 @@ async def proveedores(
         costo_min=costo_min_val,
         costo_max=costo_max_val,
         nivel_servicio_min=nivel_servicio_min_val,
-        ordenar_por=ordenar_por,
-        orden_dir=orden_dir,
         page=page,
     )
 
@@ -274,8 +262,6 @@ async def proveedores(
         "costo_min": costo_min,
         "costo_max": costo_max,
         "nivel_servicio_min": nivel_servicio_min,
-        "ordenar_por": ordenar_por,
-        "orden_dir": orden_dir,
     }
 
     return templates.TemplateResponse(request, "proveedores.html", {
@@ -290,8 +276,6 @@ async def proveedores(
         "costo_min_filtro": costo_min,
         "costo_max_filtro": costo_max,
         "nivel_servicio_min_filtro": nivel_servicio_min,
-        "ordenar_por": ordenar_por,
-        "orden_dir": orden_dir,
         "filtros_activos": filtros_activos,
         "extra_params": extra_params,
     })
