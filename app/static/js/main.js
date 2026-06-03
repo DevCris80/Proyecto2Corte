@@ -171,6 +171,7 @@ document.addEventListener('click', function (e) {
   var imagen = document.getElementById('detalle-imagen');
   var campos = document.getElementById('detalle-campos');
   var btnEditar = document.getElementById('detalle-btn-editar');
+  var btnProductos = document.getElementById('detalle-btn-productos');
   var formEliminar = document.getElementById('detalle-form-eliminar');
   var id = row.getAttribute('data-id') || '';
 
@@ -195,6 +196,12 @@ document.addEventListener('click', function (e) {
   campos.innerHTML = html;
 
   btnEditar.href = '/' + tipo + '/' + id + '/editar';
+  if (data.proveedor_id) {
+    btnProductos.href = '/productos?id_proveedor=' + encodeURIComponent(data.proveedor_id);
+    btnProductos.style.display = '';
+  } else {
+    btnProductos.style.display = 'none';
+  }
   formEliminar.action = '/' + tipo + '/' + id + '/delete';
   formEliminar.setAttribute('data-confirm', '¿Eliminar ' + (data.titulo || 'este registro') + '?');
 
