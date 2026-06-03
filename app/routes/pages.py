@@ -3,7 +3,7 @@ from fastapi import APIRouter, Depends, Form, Query, Request, UploadFile
 from fastapi.responses import RedirectResponse
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.core.storage import subir_imagen_supabase
+from app.core.storage import subir_imagen_supabase, get_imagen
 from app.core.database import get_session
 from app.core.templates import templates
 from app.repository import producto_repo, proveedor_repo, venta_repo
@@ -12,14 +12,6 @@ from app.models.proveedor import ProveedorCreate, ProveedorUpdate
 from app.models.venta import VentaCreate
 from app.routes.optimizacion_routes import obtener_alertas_pedidos
 from app.routes.dashboard_routes import obtener_resumen_dashboard
-
-async def get_imagen(request: Request) -> UploadFile | None:
-    form = await request.form()
-    imagen = form.get("imagen")
-
-    if isinstance(imagen, UploadFile) and imagen.filename:
-        return imagen
-    return None
 
 router = APIRouter(tags=["pages"])
 

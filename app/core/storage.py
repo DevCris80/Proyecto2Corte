@@ -1,5 +1,5 @@
 import uuid
-from fastapi import UploadFile
+from fastapi import UploadFile, Request
 from supabase import create_client, Client
 from app.core.config import settings
 
@@ -31,3 +31,12 @@ async def subir_imagen_supabase(path_file: UploadFile, folder: str = "general") 
         return public_url
     except Exception as e:
         return None
+
+
+async def get_imagen(request: Request) -> UploadFile | None:
+    form = await request.form()
+    imagen = form.get("imagen")
+
+    if isinstance(imagen, UploadFile) and imagen.filename:
+        return imagen
+    return None
