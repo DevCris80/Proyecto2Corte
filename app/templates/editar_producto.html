@@ -18,7 +18,7 @@
         <div class="form-group">
             <label class="meta">Imagen Actual</label>
             {% if producto.imagen_url %}
-            <img src="{{ producto.imagen_url }}" alt="Imagen actual" style="width:120px; aspect-ratio:1; object-fit:cover; border-radius:var(--radius-md); border:1px solid var(--border); margin-bottom:0.5rem;">
+            <img src="{{ producto.imagen_url }}" alt="Imagen actual" loading="lazy" style="width:120px; aspect-ratio:1; object-fit:cover; border-radius:var(--radius-md); border:1px solid var(--border); margin-bottom:0.5rem;">
             {% else %}
             <p style="color:var(--text-muted); font-size:0.85rem; margin-bottom:0.5rem;">Sin imagen</p>
             {% endif %}
