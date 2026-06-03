@@ -286,11 +286,12 @@ h2 {
 
 .btn-ghost {
   border: none;
-  color: var(--text-secondary);
+  color: var(--bg-primary);
+  background: var(--accent);
 }
 .btn-ghost:hover {
   border: none;
-  background: var(--glass-bg-hover);
+  background: rgba(255, 40, 40, 0.732);
   color: var(--text-primary);
 }
 

@@ -6,6 +6,7 @@ from sqlalchemy import case
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.models.producto import Producto, ProductoCreate, ProductoUpdate
+from app.models.proveedor import Proveedor
 
 
 async def contar_distribucion_stock(session: AsyncSession) -> dict:
@@ -239,12 +240,13 @@ async def buscar_con_filtros_paginado(
     total_pages = max(1, math.ceil(total / per_page))
 
     query = (
-        select(Producto)
+        select(Producto, Proveedor.nombre)
+        .join(Proveedor, Producto.id_proveedor == Proveedor.id)
         .where(*conditions)
         .order_by(Producto.nombre.asc())
         .offset((page - 1) * per_page)
         .limit(per_page)
     )
     result = await session.execute(query)
-    items = list(result.scalars().all())
+    items = list(result.all())
     return items, total, page, total_pages

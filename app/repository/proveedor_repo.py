@@ -13,6 +13,13 @@ async def listar_activos(session: AsyncSession):
     return result.scalars().all()
 
 
+async def listar_activos_resumen(session: AsyncSession):
+    result = await session.execute(
+        select(Proveedor.id, Proveedor.nombre).where(Proveedor.estado_activo)
+    )
+    return result.all()
+
+
 async def contar_activos(session: AsyncSession) -> int:
     query = select(func.count()).select_from(Proveedor).where(Proveedor.estado_activo)
     result = await session.execute(query)

@@ -62,13 +62,10 @@ async def productos(
         stock_max=stock_max_val,
         page=page,
     )
-    proveedores_list = await proveedor_repo.listar_activos(session)
-    proveedores_map = {p.id: p for p in proveedores_list}
+    proveedores_resumen = await proveedor_repo.listar_activos_resumen(session)
 
     productos_rows = []
-    for p in productos_list:
-        prov = proveedores_map.get(p.id_proveedor)
-        nombre_prov = prov.nombre if prov else "—"
+    for p, nombre_prov in productos_list:
         productos_rows.append({
             "id": p.id,
             "Nombre": p.nombre,
@@ -90,7 +87,7 @@ async def productos(
             }),
         })
 
-    proveedor_options = [(p.id, p.nombre) for p in proveedores_list]
+    proveedor_options = proveedores_resumen
 
     filtros_activos = bool(id_proveedor or costo_min or costo_max or stock_min or stock_max)
 
@@ -239,6 +236,7 @@ async def proveedores(
             "detail_data": json.dumps({
                 "titulo": p.nombre,
                 "imagen_url": p.imagen_url or "",
+                "proveedor_id": p.id,
                 "campos": [
                     {"label": "Nombre", "valor": p.nombre},
                     {"label": "Costo Pedido Fijo", "valor": f"${p.costo_pedido_fijo:,.2f}"},
