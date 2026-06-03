@@ -1009,23 +1009,32 @@ ul li:last-child {
   border: 1px solid var(--border);
   border-radius: var(--radius-md);
   background: var(--glass-bg);
+  backdrop-filter: blur(12px);
   overflow: hidden;
+  transition: border-color 0.3s var(--ease-smooth),
+              box-shadow 0.3s var(--ease-smooth);
+}
+
+.filters-accordion[open] {
+  border-color: rgba(191, 255, 0, 0.2);
+  box-shadow: 0 0 30px var(--accent-glow);
 }
 
 .filters-accordion summary {
   display: flex;
   align-items: center;
   gap: 0.5rem;
-  padding: 0.65rem 1rem;
+  padding: 0.75rem 1rem;
   cursor: pointer;
   font-family: 'Geist Mono', monospace;
-  font-size: 11px;
-  font-weight: 500;
-  letter-spacing: 0.15em;
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.3em;
   text-transform: uppercase;
   color: var(--text-secondary);
   user-select: none;
-  transition: color 0.2s var(--ease-smooth), background 0.2s var(--ease-smooth);
+  transition: color 0.3s var(--ease-smooth),
+              background 0.3s var(--ease-smooth);
   list-style: none;
 }
 
@@ -1034,32 +1043,41 @@ ul li:last-child {
 }
 
 .filters-accordion summary::before {
-  content: '▸';
-  font-size: 12px;
-  transition: transform 0.2s var(--ease-smooth);
-  color: var(--text-muted);
+  content: '';
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  border-right: 1.5px solid var(--text-muted);
+  border-bottom: 1.5px solid var(--text-muted);
+  transform: rotate(-45deg);
+  transition: transform 0.3s var(--ease-smooth);
+  margin-right: 0.25rem;
 }
 
 .filters-accordion[open] summary::before {
-  transform: rotate(90deg);
+  transform: rotate(45deg);
 }
 
 .filters-accordion summary:hover {
-  color: var(--text-primary);
-  background: var(--glass-bg-hover);
+  color: var(--accent);
+  background: var(--accent-dim);
+}
+
+.filters-accordion[open] summary {
+  border-bottom: 1px solid rgba(191, 255, 0, 0.1);
 }
 
 .filters-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(170px, 1fr));
   gap: 0.75rem;
-  padding: 0 1rem 1rem;
+  padding: 1rem;
 }
 
 .filters-grid input,
 .filters-grid select {
   width: 100%;
-  padding: 0.6rem 0.75rem;
+  padding: 0.55rem 0.75rem;
   background: rgba(255,255,255,0.03);
   border: 1px solid var(--border);
   border-radius: var(--radius-sm);
@@ -1068,13 +1086,19 @@ ul li:last-child {
   font-size: 0.85rem;
   font-weight: 300;
   outline: none;
-  transition: border-color 0.3s var(--ease-smooth), box-shadow 0.3s var(--ease-smooth);
+  transition: border-color 0.3s var(--ease-smooth),
+              box-shadow 0.3s var(--ease-smooth);
+}
+
+.filters-grid input:hover,
+.filters-grid select:hover {
+  border-color: rgba(191, 255, 0, 0.3);
 }
 
 .filters-grid input:focus,
 .filters-grid select:focus {
   border-color: var(--accent);
-  box-shadow: 0 0 0 3px var(--accent-dim);
+  box-shadow: 0 0 0 3px var(--accent-dim), 0 0 20px var(--accent-glow);
 }
 
 .filters-grid select {
