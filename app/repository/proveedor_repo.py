@@ -2,6 +2,8 @@ import math
 import uuid
 from sqlmodel import select, func
 from sqlalchemy.ext.asyncio import AsyncSession
+from app.core.database import async_session
+from async_lru import alru_cache
 
 from app.models.proveedor import Proveedor, ProveedorCreate, ProveedorUpdate
 
@@ -18,6 +20,24 @@ async def listar_activos_resumen(session: AsyncSession):
         select(Proveedor.id, Proveedor.nombre).where(Proveedor.estado_activo)
     )
     return result.all()
+
+
+@alru_cache(ttl=60)
+async def listar_activos_cached():
+    async with async_session() as session:
+        result = await session.execute(
+            select(Proveedor).where(Proveedor.estado_activo)
+        )
+        return result.scalars().all()
+
+
+@alru_cache(ttl=60)
+async def listar_activos_resumen_cached():
+    async with async_session() as session:
+        result = await session.execute(
+            select(Proveedor.id, Proveedor.nombre).where(Proveedor.estado_activo)
+        )
+        return [(r.id, r.nombre) for r in result.all()]
 
 
 async def contar_activos(session: AsyncSession) -> int:

@@ -62,7 +62,8 @@ async def productos(
         stock_max=stock_max_val,
         page=page,
     )
-    proveedores_resumen = await proveedor_repo.listar_activos_resumen(session)
+    proveedores_resumen = await proveedor_repo.listar_activos_resumen_cached()
+
 
     productos_rows = []
     for p, nombre_prov in productos_list:
@@ -160,7 +161,7 @@ async def editar_producto_form(
     producto = await producto_repo.obtener_por_id(session, id)
     if not producto:
         return RedirectResponse(url="/productos", status_code=303)
-    proveedores_list = await proveedor_repo.listar_activos(session)
+    proveedores_list = await proveedor_repo.listar_activos_cached()
     proveedor_options = [(p.id, p.nombre) for p in proveedores_list]
     return templates.TemplateResponse(request, "editar_producto.html", {
         "producto": producto,
