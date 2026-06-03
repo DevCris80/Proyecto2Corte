@@ -1,6 +1,6 @@
 import uuid
 import io
-from fastapi import Request, UploadFile
+from fastapi import UploadFile
 from supabase import create_client, Client
 from PIL import Image
 
@@ -45,10 +45,4 @@ async def subir_imagen_supabase(path_file: UploadFile, folder: str = "general") 
         return None
 
 
-async def get_imagen(request: Request) -> UploadFile | None:
-    form = await request.form()
-    imagen = form.get("imagen")
 
-    if isinstance(imagen, UploadFile) and imagen.filename:
-        return imagen
-    return None
