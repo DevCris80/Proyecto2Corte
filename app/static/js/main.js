@@ -132,7 +132,15 @@ document.addEventListener('click', function (e) {
     var bClean = bRaw.replace(/[$,\s]|d[ií]as?|%/g, '').trim();
     var aNum = parseFloat(aClean);
     var bNum = parseFloat(bClean);
-    if (!isNaN(aNum) && !isNaN(bNum)) {
+
+    var dateRegex = /^\d{4}-\d{2}-\d{2}/;
+    if (dateRegex.test(aRaw) && dateRegex.test(bRaw)) {
+      return isAsc ? bRaw.localeCompare(aRaw) : aRaw.localeCompare(bRaw);
+    }
+
+    var isNumA = aClean !== '' && !isNaN(Number(aClean));
+    var isNumB = bClean !== '' && !isNaN(Number(bClean));
+    if (isNumA && isNumB) {
       return isAsc ? bNum - aNum : aNum - bNum;
     }
     return isAsc ? bRaw.localeCompare(aRaw) : aRaw.localeCompare(bRaw);
