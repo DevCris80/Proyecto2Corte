@@ -1,5 +1,4 @@
 import json
-from typing import Optional
 from fastapi import APIRouter, Depends, Form, Query, Request, UploadFile
 from fastapi.responses import RedirectResponse
 from sqlalchemy.ext.asyncio import AsyncSession
