@@ -40,12 +40,32 @@ async def productos(
     request: Request,
     page: int = Query(1, ge=1),
     busqueda_nombre: str = Query(""),
+    id_proveedor: str = Query(""),
+    costo_min: str = Query(""),
+    costo_max: str = Query(""),
+    stock_min: str = Query(""),
+    stock_max: str = Query(""),
+    ordenar_por: str = Query("nombre"),
+    orden_dir: str = Query("asc"),
     session: AsyncSession = Depends(get_session),
 ):
-    if busqueda_nombre:
-        productos_list, total, current_page, total_pages = await producto_repo.buscar_por_nombre_paginado(session, busqueda_nombre, page)
-    else:
-        productos_list, total, current_page, total_pages = await producto_repo.listar_activos_paginado(session, page)
+    costo_min_val = float(costo_min) if costo_min != "" else None
+    costo_max_val = float(costo_max) if costo_max != "" else None
+    stock_min_val = int(stock_min) if stock_min != "" else None
+    stock_max_val = int(stock_max) if stock_max != "" else None
+
+    productos_list, total, current_page, total_pages = await producto_repo.buscar_con_filtros_paginado(
+        session,
+        busqueda_nombre=busqueda_nombre,
+        id_proveedor=id_proveedor,
+        costo_min=costo_min_val,
+        costo_max=costo_max_val,
+        stock_min=stock_min_val,
+        stock_max=stock_max_val,
+        ordenar_por=ordenar_por,
+        orden_dir=orden_dir,
+        page=page,
+    )
     proveedores_list = await proveedor_repo.listar_activos(session)
     proveedores_map = {p.id: p for p in proveedores_list}
 
@@ -76,6 +96,19 @@ async def productos(
 
     proveedor_options = [(p.id, p.nombre) for p in proveedores_list]
 
+    filtros_activos = bool(id_proveedor or costo_min or costo_max or stock_min or stock_max)
+
+    extra_params = {
+        "busqueda_nombre": busqueda_nombre,
+        "id_proveedor": id_proveedor,
+        "costo_min": costo_min,
+        "costo_max": costo_max,
+        "stock_min": stock_min,
+        "stock_max": stock_max,
+        "ordenar_por": ordenar_por,
+        "orden_dir": orden_dir,
+    }
+
     return templates.TemplateResponse(request, "productos.html", {
         "productos_rows": productos_rows,
         "productos_headers": ["Nombre", "Proveedor", "Stock", "Costo Unit.", "Demanda Anual"],
@@ -84,6 +117,15 @@ async def productos(
         "total_pages": total_pages,
         "total": total,
         "busqueda_nombre": busqueda_nombre,
+        "id_proveedor_filtro": id_proveedor,
+        "costo_min_filtro": costo_min,
+        "costo_max_filtro": costo_max,
+        "stock_min_filtro": stock_min,
+        "stock_max_filtro": stock_max,
+        "ordenar_por": ordenar_por,
+        "orden_dir": orden_dir,
+        "filtros_activos": filtros_activos,
+        "extra_params": extra_params,
     })
 
 
@@ -170,12 +212,33 @@ async def proveedores(
     request: Request,
     page: int = Query(1, ge=1),
     busqueda_nombre: str = Query(""),
+    lead_time_min: str = Query(""),
+    lead_time_max: str = Query(""),
+    costo_min: str = Query(""),
+    costo_max: str = Query(""),
+    nivel_servicio_min: str = Query(""),
+    ordenar_por: str = Query("nombre"),
+    orden_dir: str = Query("asc"),
     session: AsyncSession = Depends(get_session),
 ):
-    if busqueda_nombre:
-        proveedores_list, total, current_page, total_pages = await proveedor_repo.buscar_por_nombre_paginado(session, busqueda_nombre, page)
-    else:
-        proveedores_list, total, current_page, total_pages = await proveedor_repo.listar_activos_paginado(session, page)
+    lead_time_min_val = float(lead_time_min) if lead_time_min != "" else None
+    lead_time_max_val = float(lead_time_max) if lead_time_max != "" else None
+    costo_min_val = float(costo_min) if costo_min != "" else None
+    costo_max_val = float(costo_max) if costo_max != "" else None
+    nivel_servicio_min_val = float(nivel_servicio_min) if nivel_servicio_min != "" else None
+
+    proveedores_list, total, current_page, total_pages = await proveedor_repo.buscar_con_filtros_paginado(
+        session,
+        busqueda_nombre=busqueda_nombre,
+        lead_time_min=lead_time_min_val,
+        lead_time_max=lead_time_max_val,
+        costo_min=costo_min_val,
+        costo_max=costo_max_val,
+        nivel_servicio_min=nivel_servicio_min_val,
+        ordenar_por=ordenar_por,
+        orden_dir=orden_dir,
+        page=page,
+    )
 
     proveedores_rows = []
     for p in proveedores_list:
@@ -198,6 +261,23 @@ async def proveedores(
             }),
         })
 
+    filtros_activos = bool(
+        lead_time_min or lead_time_max
+        or costo_min or costo_max
+        or nivel_servicio_min
+    )
+
+    extra_params = {
+        "busqueda_nombre": busqueda_nombre,
+        "lead_time_min": lead_time_min,
+        "lead_time_max": lead_time_max,
+        "costo_min": costo_min,
+        "costo_max": costo_max,
+        "nivel_servicio_min": nivel_servicio_min,
+        "ordenar_por": ordenar_por,
+        "orden_dir": orden_dir,
+    }
+
     return templates.TemplateResponse(request, "proveedores.html", {
         "proveedores_rows": proveedores_rows,
         "proveedores_headers": ["Nombre", "Costo Pedido", "Lead Time", "Nivel Servicio"],
@@ -205,6 +285,15 @@ async def proveedores(
         "total_pages": total_pages,
         "total": total,
         "busqueda_nombre": busqueda_nombre,
+        "lead_time_min_filtro": lead_time_min,
+        "lead_time_max_filtro": lead_time_max,
+        "costo_min_filtro": costo_min,
+        "costo_max_filtro": costo_max,
+        "nivel_servicio_min_filtro": nivel_servicio_min,
+        "ordenar_por": ordenar_por,
+        "orden_dir": orden_dir,
+        "filtros_activos": filtros_activos,
+        "extra_params": extra_params,
     })
 
 
@@ -317,6 +406,8 @@ async def ventas(
 
     producto_options = [(p.id, p.nombre) for p in productos_list]
 
+    extra_params = {"busqueda_nombre": busqueda_nombre}
+
     return templates.TemplateResponse(request, "ventas.html", {
         "ventas_rows": ventas_rows,
         "ventas_headers": ["ID", "Producto", "Cantidad", "Fecha"],
@@ -326,6 +417,7 @@ async def ventas(
         "total_pages": total_pages,
         "total": total,
         "busqueda_nombre": busqueda_nombre,
+        "extra_params": extra_params,
     })
 
 

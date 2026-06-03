@@ -13,16 +13,39 @@
 <form method="GET" action="/proveedores" class="search-bar">
     <input type="text" name="busqueda_nombre" value="{{ busqueda_nombre }}" placeholder="Buscar por nombre…" class="search-input">
     <button type="submit" class="btn btn-sm">Buscar</button>
-    {% if busqueda_nombre %}<a href="/proveedores" class="btn btn-sm btn-ghost">Limpiar</a>{% endif %}
+    {% if busqueda_nombre or filtros_activos %}<a href="/proveedores" class="btn btn-sm btn-ghost">Limpiar</a>{% endif %}
 </form>
 
-{{ pager.pagination(page, total_pages, '/productos', busqueda_nombre) }}
+<details class="filters-accordion"{% if filtros_activos %} open{% endif %}>
+    <summary>Filtros avanzados</summary>
+    <form method="GET" class="filters-grid">
+        <input type="hidden" name="busqueda_nombre" value="{{ busqueda_nombre }}">
+        <input type="number" step="1" name="lead_time_min" placeholder="Lead time mín. (días)" value="{{ lead_time_min_filtro }}">
+        <input type="number" step="1" name="lead_time_max" placeholder="Lead time máx. (días)" value="{{ lead_time_max_filtro }}">
+        <input type="number" step="1" name="costo_min" placeholder="Costo pedido mín." value="{{ costo_min_filtro }}">
+        <input type="number" step="1" name="costo_max" placeholder="Costo pedido máx." value="{{ costo_max_filtro }}">
+        <input type="number" step="0.01" name="nivel_servicio_min" placeholder="Nivel servicio ≥" value="{{ nivel_servicio_min_filtro }}">
+        <select name="ordenar_por">
+            <option value="nombre"{% if ordenar_por == "nombre" %} selected{% endif %}>Nombre</option>
+            <option value="lead_time_promedio"{% if ordenar_por == "lead_time_promedio" %} selected{% endif %}>Lead Time</option>
+            <option value="costo_pedido_fijo"{% if ordenar_por == "costo_pedido_fijo" %} selected{% endif %}>Costo Pedido</option>
+            <option value="nivel_servicio_objetivo"{% if ordenar_por == "nivel_servicio_objetivo" %} selected{% endif %}>Nivel Servicio</option>
+        </select>
+        <select name="orden_dir">
+            <option value="asc"{% if orden_dir == "asc" %} selected{% endif %}>Ascendente</option>
+            <option value="desc"{% if orden_dir == "desc" %} selected{% endif %}>Descendente</option>
+        </select>
+        <button type="submit" class="btn btn-primary">Filtrar</button>
+    </form>
+</details>
+
+{{ pager.pagination(page, total_pages, '/proveedores', extra_params) }}
 
 <div class="reveal">
 {{ tables.table(proveedores_headers, proveedores_rows, actions=True, delete_url='proveedores', detail=True, detail_type='proveedores') }}
 </div>
 
-{{ pager.pagination(page, total_pages, '/proveedores', busqueda_nombre) }}
+{{ pager.pagination(page, total_pages, '/proveedores', extra_params) }}
 
 {% set crear_form %}
 <form action="/proveedores" method="POST" enctype="multipart/form-data">

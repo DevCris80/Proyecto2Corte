@@ -119,3 +119,105 @@ async def eliminar(session: AsyncSession, id: str) -> bool:
     session.add(proveedor)
     await session.commit()
     return True
+
+
+def _build_proveedor_conditions(
+    busqueda_nombre: str = "",
+    lead_time_min: float | None = None,
+    lead_time_max: float | None = None,
+    costo_min: float | None = None,
+    costo_max: float | None = None,
+    nivel_servicio_min: float | None = None,
+) -> list:
+    conditions = [Proveedor.estado_activo == True]
+    if busqueda_nombre:
+        conditions.append(Proveedor.nombre.ilike(f"%{busqueda_nombre}%"))
+    if lead_time_min is not None:
+        conditions.append(Proveedor.lead_time_promedio >= lead_time_min)
+    if lead_time_max is not None:
+        conditions.append(Proveedor.lead_time_promedio <= lead_time_max)
+    if costo_min is not None:
+        conditions.append(Proveedor.costo_pedido_fijo >= costo_min)
+    if costo_max is not None:
+        conditions.append(Proveedor.costo_pedido_fijo <= costo_max)
+    if nivel_servicio_min is not None:
+        conditions.append(Proveedor.nivel_servicio_objetivo >= nivel_servicio_min)
+    return conditions
+
+
+async def contar_con_filtros(
+    session: AsyncSession,
+    *,
+    busqueda_nombre: str = "",
+    lead_time_min: float | None = None,
+    lead_time_max: float | None = None,
+    costo_min: float | None = None,
+    costo_max: float | None = None,
+    nivel_servicio_min: float | None = None,
+) -> int:
+    conditions = _build_proveedor_conditions(
+        busqueda_nombre=busqueda_nombre,
+        lead_time_min=lead_time_min,
+        lead_time_max=lead_time_max,
+        costo_min=costo_min,
+        costo_max=costo_max,
+        nivel_servicio_min=nivel_servicio_min,
+    )
+    query = select(func.count()).select_from(Proveedor).where(*conditions)
+    result = await session.execute(query)
+    return result.scalar() or 0
+
+
+async def buscar_con_filtros_paginado(
+    session: AsyncSession,
+    *,
+    busqueda_nombre: str = "",
+    lead_time_min: float | None = None,
+    lead_time_max: float | None = None,
+    costo_min: float | None = None,
+    costo_max: float | None = None,
+    nivel_servicio_min: float | None = None,
+    ordenar_por: str = "nombre",
+    orden_dir: str = "asc",
+    page: int = 1,
+    per_page: int = 50,
+) -> tuple[list[Proveedor], int, int, int]:
+    conditions = _build_proveedor_conditions(
+        busqueda_nombre=busqueda_nombre,
+        lead_time_min=lead_time_min,
+        lead_time_max=lead_time_max,
+        costo_min=costo_min,
+        costo_max=costo_max,
+        nivel_servicio_min=nivel_servicio_min,
+    )
+
+    col_map = {
+        "nombre": Proveedor.nombre,
+        "lead_time_promedio": Proveedor.lead_time_promedio,
+        "costo_pedido_fijo": Proveedor.costo_pedido_fijo,
+        "nivel_servicio_objetivo": Proveedor.nivel_servicio_objetivo,
+    }
+    col = col_map.get(ordenar_por, Proveedor.nombre)
+    order = col.asc() if orden_dir == "asc" else col.desc()
+
+    total = await contar_con_filtros(
+        session,
+        busqueda_nombre=busqueda_nombre,
+        lead_time_min=lead_time_min,
+        lead_time_max=lead_time_max,
+        costo_min=costo_min,
+        costo_max=costo_max,
+        nivel_servicio_min=nivel_servicio_min,
+    )
+    total_pages = max(1, math.ceil(total / per_page))
+
+    query = (
+        select(Proveedor)
+        .where(*conditions)
+        .order_by(order)
+        .offset((page - 1) * per_page)
+        .limit(per_page)
+    )
+    result = await session.execute(query)
+    items = list(result.scalars().all())
+    return items, total, page, total_pages

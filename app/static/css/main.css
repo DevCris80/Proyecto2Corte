@@ -1002,3 +1002,95 @@ ul li:last-child {
   padding-top: 1rem;
   border-top: 1px solid var(--border);
 }
+
+/* ── Filters accordion ── */
+.filters-accordion {
+  margin-bottom: 1.25rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  background: var(--glass-bg);
+  overflow: hidden;
+}
+
+.filters-accordion summary {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.65rem 1rem;
+  cursor: pointer;
+  font-family: 'Geist Mono', monospace;
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: var(--text-secondary);
+  user-select: none;
+  transition: color 0.2s var(--ease-smooth), background 0.2s var(--ease-smooth);
+  list-style: none;
+}
+
+.filters-accordion summary::-webkit-details-marker {
+  display: none;
+}
+
+.filters-accordion summary::before {
+  content: '▸';
+  font-size: 12px;
+  transition: transform 0.2s var(--ease-smooth);
+  color: var(--text-muted);
+}
+
+.filters-accordion[open] summary::before {
+  transform: rotate(90deg);
+}
+
+.filters-accordion summary:hover {
+  color: var(--text-primary);
+  background: var(--glass-bg-hover);
+}
+
+.filters-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(170px, 1fr));
+  gap: 0.75rem;
+  padding: 0 1rem 1rem;
+}
+
+.filters-grid input,
+.filters-grid select {
+  width: 100%;
+  padding: 0.6rem 0.75rem;
+  background: rgba(255,255,255,0.03);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  color: var(--text-primary);
+  font-family: 'Inter', sans-serif;
+  font-size: 0.85rem;
+  font-weight: 300;
+  outline: none;
+  transition: border-color 0.3s var(--ease-smooth), box-shadow 0.3s var(--ease-smooth);
+}
+
+.filters-grid input:focus,
+.filters-grid select:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px var(--accent-dim);
+}
+
+.filters-grid select {
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' fill='rgba(255,255,255,0.4)'%3E%3Cpath d='M1 1l5 5 5-5'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 0.75rem center;
+  padding-right: 2.25rem;
+}
+
+.filters-grid option {
+  background: #0a0a0a;
+  color: var(--text-primary);
+}
+
+.filters-grid .btn {
+  align-self: end;
+  margin-bottom: 0;
+}

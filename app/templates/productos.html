@@ -13,16 +13,44 @@
 <form method="GET" action="/productos" class="search-bar">
     <input type="text" name="busqueda_nombre" value="{{ busqueda_nombre }}" placeholder="Buscar por nombre…" class="search-input">
     <button type="submit" class="btn btn-sm">Buscar</button>
-    {% if busqueda_nombre %}<a href="/productos" class="btn btn-sm btn-ghost">Limpiar</a>{% endif %}
+    {% if busqueda_nombre or filtros_activos %}<a href="/productos" class="btn btn-sm btn-ghost">Limpiar</a>{% endif %}
 </form>
 
-{{ pager.pagination(page, total_pages, '/productos', busqueda_nombre) }}
+<details class="filters-accordion"{% if filtros_activos %} open{% endif %}>
+    <summary>Filtros avanzados</summary>
+    <form method="GET" class="filters-grid">
+        <input type="hidden" name="busqueda_nombre" value="{{ busqueda_nombre }}">
+        <select name="id_proveedor">
+            <option value="">Todos los proveedores</option>
+            {% for id, name in proveedor_options %}
+            <option value="{{ id }}"{% if id == id_proveedor_filtro %} selected{% endif %}>{{ name }}</option>
+            {% endfor %}
+        </select>
+        <input type="number" step="1" name="costo_min" placeholder="Precio mín." value="{{ costo_min_filtro }}">
+        <input type="number" step="1" name="costo_max" placeholder="Precio máx." value="{{ costo_max_filtro }}">
+        <input type="number" step="1" name="stock_min" placeholder="Stock mín." value="{{ stock_min_filtro }}">
+        <input type="number" step="1" name="stock_max" placeholder="Stock máx." value="{{ stock_max_filtro }}">
+        <select name="ordenar_por">
+            <option value="nombre"{% if ordenar_por == "nombre" %} selected{% endif %}>Nombre</option>
+            <option value="costo_unitario"{% if ordenar_por == "costo_unitario" %} selected{% endif %}>Precio</option>
+            <option value="stock_actual"{% if ordenar_por == "stock_actual" %} selected{% endif %}>Stock</option>
+            <option value="demanda_anual_estimada"{% if ordenar_por == "demanda_anual_estimada" %} selected{% endif %}>Demanda</option>
+        </select>
+        <select name="orden_dir">
+            <option value="asc"{% if orden_dir == "asc" %} selected{% endif %}>Ascendente</option>
+            <option value="desc"{% if orden_dir == "desc" %} selected{% endif %}>Descendente</option>
+        </select>
+        <button type="submit" class="btn btn-primary">Filtrar</button>
+    </form>
+</details>
+
+{{ pager.pagination(page, total_pages, '/productos', extra_params) }}
 
 <div class="reveal">
 {{ tables.table(productos_headers, productos_rows, actions=True, delete_url='productos', detail=True, detail_type='productos') }}
 </div>
 
-{{ pager.pagination(page, total_pages, '/productos', busqueda_nombre) }}
+{{ pager.pagination(page, total_pages, '/productos', extra_params) }}
 
 {% set crear_form %}
 <form action="/productos" method="POST" enctype="multipart/form-data">

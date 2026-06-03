@@ -141,3 +141,121 @@ async def eliminar(session: AsyncSession, id: str) -> bool:
     session.add(producto)
     await session.commit()
     return True
+
+
+def _build_producto_conditions(
+    busqueda_nombre: str = "",
+    id_proveedor: str = "",
+    costo_min: float | None = None,
+    costo_max: float | None = None,
+    stock_min: int | None = None,
+    stock_max: int | None = None,
+    demanda_min: float | None = None,
+    demanda_max: float | None = None,
+) -> list:
+    conditions = [Producto.estado_activo == True]
+    if busqueda_nombre:
+        conditions.append(Producto.nombre.ilike(f"%{busqueda_nombre}%"))
+    if id_proveedor:
+        conditions.append(Producto.id_proveedor == id_proveedor)
+    if costo_min is not None:
+        conditions.append(Producto.costo_unitario >= costo_min)
+    if costo_max is not None:
+        conditions.append(Producto.costo_unitario <= costo_max)
+    if stock_min is not None:
+        conditions.append(Producto.stock_actual >= stock_min)
+    if stock_max is not None:
+        conditions.append(Producto.stock_actual <= stock_max)
+    if demanda_min is not None:
+        conditions.append(Producto.demanda_anual_estimada >= demanda_min)
+    if demanda_max is not None:
+        conditions.append(Producto.demanda_anual_estimada <= demanda_max)
+    return conditions
+
+
+async def contar_con_filtros(
+    session: AsyncSession,
+    *,
+    busqueda_nombre: str = "",
+    id_proveedor: str = "",
+    costo_min: float | None = None,
+    costo_max: float | None = None,
+    stock_min: int | None = None,
+    stock_max: int | None = None,
+    demanda_min: float | None = None,
+    demanda_max: float | None = None,
+) -> int:
+    conditions = _build_producto_conditions(
+        busqueda_nombre=busqueda_nombre,
+        id_proveedor=id_proveedor,
+        costo_min=costo_min,
+        costo_max=costo_max,
+        stock_min=stock_min,
+        stock_max=stock_max,
+        demanda_min=demanda_min,
+        demanda_max=demanda_max,
+    )
+    query = select(func.count()).select_from(Producto).where(*conditions)
+    result = await session.execute(query)
+    return result.scalar() or 0
+
+
+async def buscar_con_filtros_paginado(
+    session: AsyncSession,
+    *,
+    busqueda_nombre: str = "",
+    id_proveedor: str = "",
+    costo_min: float | None = None,
+    costo_max: float | None = None,
+    stock_min: int | None = None,
+    stock_max: int | None = None,
+    demanda_min: float | None = None,
+    demanda_max: float | None = None,
+    ordenar_por: str = "nombre",
+    orden_dir: str = "asc",
+    page: int = 1,
+    per_page: int = 50,
+) -> tuple[list[Producto], int, int, int]:
+    conditions = _build_producto_conditions(
+        busqueda_nombre=busqueda_nombre,
+        id_proveedor=id_proveedor,
+        costo_min=costo_min,
+        costo_max=costo_max,
+        stock_min=stock_min,
+        stock_max=stock_max,
+        demanda_min=demanda_min,
+        demanda_max=demanda_max,
+    )
+
+    col_map = {
+        "nombre": Producto.nombre,
+        "costo_unitario": Producto.costo_unitario,
+        "stock_actual": Producto.stock_actual,
+        "demanda_anual_estimada": Producto.demanda_anual_estimada,
+    }
+    col = col_map.get(ordenar_por, Producto.nombre)
+    order = col.asc() if orden_dir == "asc" else col.desc()
+
+    total = await contar_con_filtros(
+        session,
+        busqueda_nombre=busqueda_nombre,
+        id_proveedor=id_proveedor,
+        costo_min=costo_min,
+        costo_max=costo_max,
+        stock_min=stock_min,
+        stock_max=stock_max,
+        demanda_min=demanda_min,
+        demanda_max=demanda_max,
+    )
+    total_pages = max(1, math.ceil(total / per_page))
+
+    query = (
+        select(Producto)
+        .where(*conditions)
+        .order_by(order)
+        .offset((page - 1) * per_page)
+        .limit(per_page)
+    )
+    result = await session.execute(query)
+    items = list(result.scalars().all())
+    return items, total, page, total_pages

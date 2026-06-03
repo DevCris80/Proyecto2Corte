@@ -17,7 +17,7 @@
     </div>
 </div>
 
-{{ pager.pagination(page, total_pages, '/productos', busqueda_nombre) }}
+{{ pager.pagination(page, total_pages, '/productos', extra_params) }}
 
 <form method="GET" action="/ventas" class="search-bar">
     <input type="text" name="busqueda_nombre" value="{{ busqueda_nombre }}" placeholder="Buscar producto…" class="search-input">
@@ -29,7 +29,7 @@
 {{ tables.table(ventas_headers, ventas_rows, actions=True, delete_url='ventas', detail=True, detail_type='ventas') }}
 </div>
 
-{{ pager.pagination(page, total_pages, '/ventas', busqueda_nombre) }}
+{{ pager.pagination(page, total_pages, '/ventas', extra_params) }}
 
 {% set crear_form %}
 <form action="/ventas" method="POST">

@@ -1,16 +1,14 @@
-{% macro _pagination_url(base_url, page, busqueda_nombre) %}{{ base_url }}?page={{ page }}{% if busqueda_nombre %}&busqueda_nombre={{ busqueda_nombre }}{% endif %}{% endmacro %}
-
-{% macro pagination(page, total_pages, base_url, busqueda_nombre='') %}
+{% macro pagination(page, total_pages, base_url, extra_params={}) %}
 {% if total_pages > 1 %}
 <div class="pagination">
     {% if page > 1 %}
-    <a href="{{ _pagination_url(base_url, page - 1, busqueda_nombre) }}" class="btn btn-sm">&larr; Anterior</a>
+    <a href="{{ base_url }}?page={{ page - 1 }}{% for k, v in extra_params.items() %}{% if v is not none and v != '' %}&{{ k }}={{ v }}{% endif %}{% endfor %}" class="btn btn-sm">&larr; Anterior</a>
     {% endif %}
 
     <span class="pagination-info">{{ page }} / {{ total_pages }}</span>
 
     {% if page < total_pages %}
-    <a href="{{ _pagination_url(base_url, page + 1, busqueda_nombre) }}" class="btn btn-sm">Siguiente &rarr;</a>
+    <a href="{{ base_url }}?page={{ page + 1 }}{% for k, v in extra_params.items() %}{% if v is not none and v != '' %}&{{ k }}={{ v }}{% endif %}{% endfor %}" class="btn btn-sm">Siguiente &rarr;</a>
     {% endif %}
 </div>
 {% endif %}
