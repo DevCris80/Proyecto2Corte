@@ -46,7 +46,7 @@ html, body {
 }
 
 body {
-  overflow: hidden;
+  overflow-x: hidden;
 }
 
 a {
@@ -103,6 +103,7 @@ h2 {
   flex: 1;
   padding: 2rem 2.5rem;
   overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
   position: relative;
   z-index: 1;
 }
