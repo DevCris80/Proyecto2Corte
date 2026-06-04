@@ -55,7 +55,6 @@ async def listar_proveedores_pagina(
             "detail_data": json.dumps({
                 "titulo": p.nombre,
                 "imagen_url": p.imagen_url or "",
-                "imagen_modal": imagen_url_transformada(p.imagen_url, 300) if p.imagen_url else "",
                 "proveedor_id": p.id,
                 "campos": [
                     {"label": "Nombre", "valor": p.nombre},

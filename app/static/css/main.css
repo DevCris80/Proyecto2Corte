@@ -941,16 +941,16 @@ ul li:last-child {
 
 .detail-image-col {
   flex-shrink: 0;
-  width: 180px;
+  width: 200px;
 }
 
 .detail-image-col img {
   width: 100%;
+  height: auto;
   border-radius: var(--radius-md);
-  object-fit: contain;
-  max-height: 260px;
   border: 1px solid var(--border);
-  background: var(--glass-bg);
+  background: transparent;
+  display: block;
 }
 
 .detail-image-col .no-image {
@@ -1252,8 +1252,7 @@ ul li:last-child {
   }
 
   .detail-image-col {
-    width: 100%;
-    max-width: 200px;
+    width: 200px;
   }
 
   .chart-container {

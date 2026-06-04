@@ -56,7 +56,6 @@ async def listar_productos_pagina(
             "detail_data": json.dumps({
                 "titulo": p.nombre,
                 "imagen_url": p.imagen_url or "",
-                "imagen_modal": imagen_url_transformada(p.imagen_url, 300) if p.imagen_url else "",
                 "campos": [
                     {"label": "Nombre", "valor": p.nombre},
                     {"label": "Proveedor", "valor": nombre_prov},
