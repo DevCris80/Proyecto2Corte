@@ -2,7 +2,6 @@ import traceback as tb
 from contextlib import asynccontextmanager
 
 from fastapi import FastAPI, Request
-from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import PlainTextResponse
 from sqlmodel import SQLModel
@@ -10,6 +9,9 @@ from sqlmodel import SQLModel
 from app.core.database import engine
 from app.core.templates import templates
 from app.routes.pages import router as pages_router
+from app.routes.productos_pages import router as productos_pages_router
+from app.routes.proveedores_pages import router as proveedores_pages_router
+from app.routes.ventas_pages import router as ventas_pages_router
 from app.routes.proveedores_routes import router as proveedor_router
 from app.routes.productos_routes import router as productos_router
 from app.routes.ventas_routes import router as ventas_router
@@ -57,6 +59,9 @@ async def global_exception_handler(request: Request, exc: Exception):
 
 
 app.include_router(pages_router)
+app.include_router(productos_pages_router)
+app.include_router(proveedores_pages_router)
+app.include_router(ventas_pages_router)
 app.mount("/static", StaticFiles(directory="app/static"), name="static")
 app.include_router(proveedor_router)
 app.include_router(productos_router)
