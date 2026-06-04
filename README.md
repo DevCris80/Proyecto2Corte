@@ -106,8 +106,8 @@ proyecto-dev-2026/
 
 - Python 3.11 o superior
 - [uv](https://docs.astral.sh/uv/) (gestor de dependencias)
-- PostgreSQL (o una instancia en Neon.tech)
-- Cuenta en Supabase (para almacenamiento de imágenes)
+- PostgreSQL
+- Supabase para almacenamiento de imágenes
 
 ### Pasos
 
@@ -142,7 +142,7 @@ La aplicación estará disponible en `http://localhost:8000`.
 ### Poblar la base de datos con datos de prueba
 
 ```bash
-uv run seed_db.py
+uv run -m scripts.seed_data
 ```
 
 ---
@@ -287,5 +287,3 @@ El proyecto incluye:
 - **Tests de integración de API** (`tests/test_api.py`) — prueba los endpoints REST con un cliente HTTP asíncrono
 - **Tests del motor EOQ** (`tests/test_math.py`) — verifica cálculos de EOQ, punto de reorden, stock de seguridad y niveles de alerta
 - **Tests de modelos** (`tests/test_models.py`) — valida restricciones y schemas de Pydantic
-
-Los tests se ejecutan en modo asíncrono automáticamente (`asyncio_mode = auto`).
