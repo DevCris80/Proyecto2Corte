@@ -13,15 +13,14 @@
         </thead>
         <tbody>
             {% for row in rows %}
-            <tr{% if detail %} class="clickable-row" data-detail='{{ row.detail_data | safe }}' data-type="{{ detail_type }}" data-id="{{ row.get(row.keys() | list | first, '') }}"{% endif %}>
+            <tr{% if detail %} class="clickable-row" data-detail='{{ row.detail_data | safe }}' data-type="{{ detail_type }}" data-id="{{ row.id }}"{% endif %}>
                 {% for header in headers %}
-                <td>{{ row.get(header, '') }}</td>
+                <td>{% if header == "Imagen" and row.get("Imagen") %}<img src="{{ row.Imagen }}" width="50" height="50" loading="lazy" style="object-fit:cover;border-radius:6px;display:block;">{% else %}{{ row.get(header, '') }}{% endif %}</td>
                 {% endfor %}
                 {% if actions and delete_url %}
-                {% set first_key = row.keys() | list | first %}
                 <td class="actions-cell">
-                    <a href="/{{ delete_url }}/{{ row[first_key] }}/editar" class="btn btn-sm btn-ghost">Editar</a>
-                    <form action="/{{ delete_url }}/{{ row[first_key] }}/delete" method="POST" style="display:inline;" data-confirm="¿Eliminar {{ row.get('Nombre') or row.get('nombre') or '' }}?">
+                    <a href="/{{ delete_url }}/{{ row.id }}/editar" class="btn btn-sm btn-ghost">Editar</a>
+                    <form action="/{{ delete_url }}/{{ row.id }}/delete" method="POST" style="display:inline;" data-confirm="¿Eliminar {{ row.get('Nombre') or row.get('nombre') or '' }}?">
                         <button type="submit" class="btn btn-sm btn-danger">Eliminar</button>
                     </form>
                 </td>

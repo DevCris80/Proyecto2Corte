@@ -4,7 +4,7 @@ from fastapi.responses import RedirectResponse
 from sqlalchemy.ext.asyncio import AsyncSession
 from urllib.parse import urlencode
 
-from app.core.storage import subir_imagen_supabase, validar_mime_imagen
+from app.core.storage import subir_imagen_supabase, validar_mime_imagen, imagen_url_transformada
 from app.core.database import get_session
 from app.core.templates import templates
 from app.repository import producto_repo, proveedor_repo
@@ -44,8 +44,10 @@ async def listar_productos_pagina(
 
     productos_rows = []
     for p, nombre_prov in productos_list:
+        thumb = imagen_url_transformada(p.imagen_url, 60, 60) if p.imagen_url else ""
         productos_rows.append({
             "id": p.id,
+            "Imagen": thumb,
             "Nombre": p.nombre,
             "Proveedor": nombre_prov,
             "Stock": str(p.stock_actual),
@@ -54,6 +56,7 @@ async def listar_productos_pagina(
             "detail_data": json.dumps({
                 "titulo": p.nombre,
                 "imagen_url": p.imagen_url or "",
+                "imagen_modal": imagen_url_transformada(p.imagen_url, 300) if p.imagen_url else "",
                 "campos": [
                     {"label": "Nombre", "valor": p.nombre},
                     {"label": "Proveedor", "valor": nombre_prov},
@@ -79,7 +82,7 @@ async def listar_productos_pagina(
 
     return templates.TemplateResponse(request, "productos.html", {
         "productos_rows": productos_rows,
-        "productos_headers": ["Nombre", "Proveedor", "Stock", "Costo Unit.", "Demanda Anual"],
+        "productos_headers": ["Imagen", "Nombre", "Proveedor", "Stock", "Costo Unit.", "Demanda Anual"],
         "proveedor_options": proveedor_options,
         "page": current_page,
         "total_pages": total_pages,

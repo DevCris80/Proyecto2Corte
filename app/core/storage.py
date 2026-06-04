@@ -64,4 +64,13 @@ async def subir_imagen_supabase(path_file: UploadFile, folder: str = "general") 
         return None
 
 
+def imagen_url_transformada(url: str, width: int = 60, height: int | None = None) -> str:
+    if not url:
+        return ""
+    base = url.replace("/storage/v1/object/public/", "/storage/v1/render/image/public/")
+    if height is None:
+        return f"{base}?width={width}"
+    return f"{base}?width={width}&height={height}&resize=cover"
+
+
 

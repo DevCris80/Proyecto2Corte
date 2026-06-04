@@ -4,7 +4,7 @@ from fastapi.responses import RedirectResponse
 from sqlalchemy.ext.asyncio import AsyncSession
 from urllib.parse import urlencode
 
-from app.core.storage import subir_imagen_supabase, validar_mime_imagen
+from app.core.storage import subir_imagen_supabase, validar_mime_imagen, imagen_url_transformada
 from app.core.database import get_session
 from app.core.templates import templates
 from app.repository import proveedor_repo
@@ -44,8 +44,10 @@ async def listar_proveedores_pagina(
 
     proveedores_rows = []
     for p in proveedores_list:
+        thumb = imagen_url_transformada(p.imagen_url, 60, 60) if p.imagen_url else ""
         proveedores_rows.append({
             "id": p.id,
+            "Imagen": thumb,
             "Nombre": p.nombre,
             "Costo Pedido": f"${p.costo_pedido_fijo:,.2f}",
             "Lead Time": f"{p.lead_time_promedio} días",
@@ -53,6 +55,7 @@ async def listar_proveedores_pagina(
             "detail_data": json.dumps({
                 "titulo": p.nombre,
                 "imagen_url": p.imagen_url or "",
+                "imagen_modal": imagen_url_transformada(p.imagen_url, 300) if p.imagen_url else "",
                 "proveedor_id": p.id,
                 "campos": [
                     {"label": "Nombre", "valor": p.nombre},
@@ -81,7 +84,7 @@ async def listar_proveedores_pagina(
 
     return templates.TemplateResponse(request, "proveedores.html", {
         "proveedores_rows": proveedores_rows,
-        "proveedores_headers": ["Nombre", "Costo Pedido", "Lead Time", "Nivel Servicio"],
+        "proveedores_headers": ["Imagen", "Nombre", "Costo Pedido", "Lead Time", "Nivel Servicio"],
         "page": current_page,
         "total_pages": total_pages,
         "total": total,
