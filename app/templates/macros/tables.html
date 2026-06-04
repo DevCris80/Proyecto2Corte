@@ -13,7 +13,7 @@
         </thead>
         <tbody>
             {% for row in rows %}
-            <tr{% if detail %} class="clickable-row" data-detail='{{ row.detail_data | safe }}' data-type="{{ detail_type }}" data-id="{{ row.id }}"{% endif %}>
+            <tr{% if detail %} class="clickable-row" data-detail='{{ row.detail_data | safe }}' data-type="{{ detail_type }}" data-id="{{ row.id }}"{% if row.get("Imagen") %} data-thumb="{{ row.Imagen }}"{% endif %}{% endif %}>
                 {% for header in headers %}
                 <td>{% if header == "Imagen" and row.get("Imagen") %}<img src="{{ row.Imagen }}" width="50" height="50" loading="lazy" style="object-fit:cover;border-radius:6px;display:block;">{% else %}{{ row.get(header, '') }}{% endif %}</td>
                 {% endfor %}

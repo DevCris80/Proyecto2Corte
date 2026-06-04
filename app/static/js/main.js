@@ -189,10 +189,16 @@ document.addEventListener('click', function (e) {
 
   titulo.textContent = data.titulo || 'Detalle';
 
+  var thumbUrl = row.getAttribute('data-thumb') || '';
   var imgUrl = data.imagen_modal || data.imagen_url || '';
   if (imgUrl) {
-    imagen.src = imgUrl;
+    imagen.src = thumbUrl || imgUrl;
     imagenCol.style.display = '';
+    if (thumbUrl && thumbUrl !== imgUrl) {
+      var fullImg = new Image();
+      fullImg.onload = function () { imagen.src = imgUrl; };
+      fullImg.src = imgUrl;
+    }
   } else {
     imagenCol.style.display = 'none';
   }

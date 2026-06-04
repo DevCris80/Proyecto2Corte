@@ -947,8 +947,8 @@ ul li:last-child {
 .detail-image-col img {
   width: 100%;
   border-radius: var(--radius-md);
-  object-fit: cover;
-  aspect-ratio: 1;
+  object-fit: contain;
+  max-height: 260px;
   border: 1px solid var(--border);
   background: var(--glass-bg);
 }
