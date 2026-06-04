@@ -237,3 +237,36 @@ document.addEventListener('click', function (e) {
 
   window.openModal('modal-detalle');
 });
+
+/* ── Hamburger menu toggle ── */
+(function() {
+  var hamburgerBtn = document.getElementById('hamburgerBtn');
+  var sidebar = document.getElementById('sidebar');
+  var backdrop = document.getElementById('sidebarBackdrop');
+
+  if (hamburgerBtn && sidebar && backdrop) {
+    hamburgerBtn.addEventListener('click', function() {
+      sidebar.classList.toggle('open');
+      backdrop.classList.toggle('visible');
+      document.body.style.overflow = sidebar.classList.contains('open') ? 'hidden' : '';
+    });
+
+    backdrop.addEventListener('click', function() {
+      sidebar.classList.remove('open');
+      backdrop.classList.remove('visible');
+      document.body.style.overflow = '';
+    });
+  }
+
+  /* Extend Escape key to also close sidebar */
+  var origKeydown = document.addEventListener;
+  document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') {
+      if (sidebar && backdrop) {
+        sidebar.classList.remove('open');
+        backdrop.classList.remove('visible');
+        document.body.style.overflow = '';
+      }
+    }
+  });
+})();

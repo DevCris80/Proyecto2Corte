@@ -36,7 +36,11 @@
                 <li><a href="/optimizacion" data-short="OP">Optimización</a></li>
             </ul>
         </nav>
+        <div class="sidebar-backdrop" id="sidebarBackdrop"></div>
         <main class="main-content">
+            <button class="hamburger" id="hamburgerBtn" aria-label="Menú">
+                <span></span><span></span><span></span>
+            </button>
             {% block content %}{% endblock %}
         </main>
     </div>
