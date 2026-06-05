@@ -2,6 +2,7 @@ import json
 from fastapi import APIRouter, Depends, Form, Query, Request, UploadFile
 from fastapi.responses import RedirectResponse
 from sqlalchemy.ext.asyncio import AsyncSession
+from urllib.parse import urlencode
 
 from app.core.database import get_session
 from app.core.templates import templates
@@ -71,8 +72,12 @@ async def crear_venta_pagina(
     cantidad: int = Form(...),
 ):
     datos = VentaCreate(id_producto=id_producto, cantidad=cantidad)
-    await venta_repo.crear_con_descuento_stock(session, datos)
-    return RedirectResponse(url="/ventas", status_code=303)
+    venta = await venta_repo.crear_con_descuento_stock(session, datos)
+    if not venta:
+        qs = urlencode({"toast": "No hay suficiente stock para realizar la venta", "toast_type": "error"})
+        return RedirectResponse(url=f"/ventas?{qs}", status_code=303)
+    qs = urlencode({"toast": "Venta registrada correctamente", "toast_type": "success"})
+    return RedirectResponse(url=f"/ventas?{qs}", status_code=303)
 
 
 @router.get("/ventas/{id}/editar")

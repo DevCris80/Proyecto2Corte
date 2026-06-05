@@ -125,7 +125,8 @@ async def crear_proveedor_pagina(
         imagen_url = await subir_imagen_supabase(imagen, folder=f"public/proveedores/{proveedor.id}")
         if imagen_url:
             await proveedor_repo.actualizar(session, proveedor.id, ProveedorUpdate(imagen_url=imagen_url))
-    return RedirectResponse(url="/proveedores", status_code=303)
+    qs = urlencode({"toast": "Proveedor creado correctamente", "toast_type": "success"})
+    return RedirectResponse(url=f"/proveedores?{qs}", status_code=303)
 
 
 @router.post("/proveedores/{id}/delete")

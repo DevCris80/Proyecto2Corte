@@ -126,7 +126,8 @@ async def crear_producto_pagina(
         imagen_url = await subir_imagen_supabase(imagen, folder=f"public/productos/{producto.id}")
         if imagen_url:
             await producto_repo.actualizar(session, producto.id, ProductoUpdate(imagen_url=imagen_url))
-    return RedirectResponse(url="/productos", status_code=303)
+    qs = urlencode({"toast": "Producto creado correctamente", "toast_type": "success"})
+    return RedirectResponse(url=f"/productos?{qs}", status_code=303)
 
 
 @router.post("/productos/{id}/delete")
